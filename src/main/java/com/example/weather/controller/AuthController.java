@@ -29,6 +29,8 @@ public class AuthController {
                                                  HttpServletResponse response) {
         AuthResponse authResponse = authService.register(request);
 
+        System.out.println("REGISTERRRRRRRRRRRRRRRRRR");
+
         if (authResponse.getMessage() != null && authResponse.getMessage().equals("Email already exists")) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(authResponse);
         }
@@ -44,7 +46,7 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request,
                                               HttpServletResponse response) {
         AuthResponse authResponse = authService.login(request);
-
+        System.out.println("LOGINNNNNNNNn");
         if (authResponse.getMessage() != null && authResponse.getMessage().equals("Invalid email or password")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(authResponse);
         }

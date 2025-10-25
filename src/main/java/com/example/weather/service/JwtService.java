@@ -16,10 +16,10 @@ public class JwtService {
     @Value("${jwt.secret:defaultSecretKeyForDevelopment123!}")
     private String jwtSecret;
 
-    @Value("${jwt.access.expiration:900000}") // 15 минут по умолчанию
+    @Value("${jwt.access.expiration:60000}") // 15 минут по умолчанию
     private Long accessExpiration;
 
-    @Value("${jwt.refresh.expiration:604800000}") // 7 дней по умолчанию
+    @Value("${jwt.refresh.expiration:120000}") // 7 дней по умолчанию
     private Long refreshExpiration;
 
     // Остальной код без изменений...
@@ -81,7 +81,7 @@ public class JwtService {
                 return false;
             }
 
-            // Проверяем expiration
+
             String payloadJson = base64Decode(payloadBase64);
             Map<String, Object> payload = jsonToMap(payloadJson);
 
