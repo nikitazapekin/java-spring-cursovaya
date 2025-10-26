@@ -68,4 +68,14 @@ public class PatientService {
         return patientRepository.findByUserEmail(email)
                 .map(this::convertToResponse);
     }
+
+    public Patient updatePatientAvatar(String email, String avatarUrl) {
+        Optional<Patient> patientOpt = patientRepository.findByUserEmail(email);
+        if (patientOpt.isPresent()) {
+            Patient patient = patientOpt.get();
+            patient.setAvatar(avatarUrl);
+            return patientRepository.save(patient);
+        }
+        throw new RuntimeException("Patient not found for email: " + email);
+    }
 }
