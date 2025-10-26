@@ -16,10 +16,10 @@ public class JwtService {
     @Value("${jwt.secret:defaultSecretKeyForDevelopment123!}")
     private String jwtSecret;
 
-    @Value("${jwt.access.expiration:130000}") // 15 минут
+    @Value("${jwt.access.expiration:1130000}")
     private Long accessExpiration;
 
-    @Value("${jwt.refresh.expiration:3360000}") // 7 дней
+    @Value("${jwt.refresh.expiration:33160000}")
     private Long refreshExpiration;
 
     public String generateAccessToken(String email, String role, String userType) {
@@ -30,7 +30,7 @@ public class JwtService {
         Map<String, Object> payload = new HashMap<>();
         payload.put("sub", email);
         payload.put("role", role);
-        payload.put("userType", userType); // "PATIENT" или "DOCTOR"
+        payload.put("userType", userType);
         payload.put("type", "access");
         payload.put("iat", System.currentTimeMillis());
         payload.put("exp", System.currentTimeMillis() + accessExpiration);
@@ -46,7 +46,7 @@ public class JwtService {
         Map<String, Object> payload = new HashMap<>();
         payload.put("sub", email);
         payload.put("role", role);
-        payload.put("userType", userType); // "PATIENT" или "DOCTOR"
+        payload.put("userType", userType);
         payload.put("type", "refresh");
         payload.put("iat", System.currentTimeMillis());
         payload.put("exp", System.currentTimeMillis() + refreshExpiration);

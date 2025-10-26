@@ -33,7 +33,6 @@ public class Patient {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    // Constructors
     public Patient() {
         this.createdAt = LocalDateTime.now();
     }
