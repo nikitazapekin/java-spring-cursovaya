@@ -1,7 +1,6 @@
 package com.example.medicalapp.entity;
 
 
-
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -28,6 +27,9 @@ public class Child {
     @JoinColumn(name = "parent_id", nullable = false)
     private Patient parent;
 
+    @OneToOne(mappedBy = "child", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private ChildIdentifier childIdentifier;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -52,7 +54,7 @@ public class Child {
         this.updatedAt = LocalDateTime.now();
     }
 
-    // Getters and Setters
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -70,6 +72,9 @@ public class Child {
 
     public Patient getParent() { return parent; }
     public void setParent(Patient parent) { this.parent = parent; }
+
+    public ChildIdentifier getChildIdentifier() { return childIdentifier; }
+    public void setChildIdentifier(ChildIdentifier childIdentifier) { this.childIdentifier = childIdentifier; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

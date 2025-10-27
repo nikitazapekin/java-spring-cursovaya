@@ -68,46 +68,13 @@ public class ChildController {
                     .body("{\"message\": \"Error retrieving child: " + e.getMessage() + "\"}");
         }
     }
-    /*
-    @PostMapping
-    public ResponseEntity<?> createChild(@RequestBody ChildRequest childRequest, HttpServletRequest request) {
-        System.out.println("TESTTTTTTTTTTT");
-        String userEmail = (String) request.getAttribute("userEmail");
-        System.out.println("PARENT" + userEmail.toString());
-       // String parentId = (String) request.getAttribute("parentId");
-       // System.out.println("PARENT" + parentId.toString());
-        try {
-            // Проверяем, что пользователь создает ребенка для
-
-        //    String userEmail = (String) request.getAttribute("userEmail");
-            if (userEmail == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body("{\"message\": \"User not authenticated\"}");
-            }
-
-            // Проверяем, что parentId соответствует текущему пользователю
-            var currentPatientOpt = patientService.findByUserEmail(userEmail);
-            if (currentPatientOpt.isEmpty() || !currentPatientOpt.get().getId().equals(childRequest.getParentId())) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body("{\"message\": \"Cannot create child for another user\"}");
-            }
-
-            ChildResponse createdChild = childService.createChild(childRequest);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdChild);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("{\"message\": \"Error creating child: " + e.getMessage() + "\"}");
-        }
-    }
-
-*/
 
 
     @PostMapping
     public ResponseEntity<?> createChild(@RequestBody ChildRequest childRequest, HttpServletRequest request) {
-        System.out.println("TESTTTTTTTTTTT");
+
         String userEmail = (String) request.getAttribute("userEmail");
-        System.out.println("PARENT: " + userEmail);
+
 
         try {
             if (userEmail == null) {
@@ -115,24 +82,22 @@ public class ChildController {
                         .body("{\"message\": \"User not authenticated\"}");
             }
 
-            // Получаем текущего пациента по email
             var currentPatientOpt = patientService.findByUserEmail(userEmail);
             if (currentPatientOpt.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body("{\"message\": \"Patient profile not found\"}");
             }
 
-            // Устанавливаем parentId из текущего пользователя
+
             Long currentPatientId = currentPatientOpt.get().getId();
             System.out.println("Current patient ID: " + currentPatientId);
 
-            // Создаем новый ChildRequest с правильным parentId
             ChildRequest validatedRequest = new ChildRequest();
             validatedRequest.setName(childRequest.getName());
             validatedRequest.setAge(childRequest.getAge());
             validatedRequest.setGender(childRequest.getGender());
             validatedRequest.setAvatar(childRequest.getAvatar());
-            validatedRequest.setParentId(currentPatientId); // Устанавливаем parentId из текущего пользователя
+            validatedRequest.setParentId(currentPatientId);
 
             ChildResponse createdChild = childService.createChild(validatedRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdChild);
@@ -155,7 +120,6 @@ public class ChildController {
                         .body("{\"message\": \"User not authenticated\"}");
             }
 
-            // Проверяем, что ребенок принадлежит текущему пользователю
             var currentPatientOpt = patientService.findByUserEmail(userEmail);
             if (currentPatientOpt.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -191,7 +155,7 @@ public class ChildController {
                         .body("{\"message\": \"User not authenticated\"}");
             }
 
-            // Проверяем, что ребенок принадлежит текущему пользователю
+
             var currentPatientOpt = patientService.findByUserEmail(userEmail);
             if (currentPatientOpt.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -211,4 +175,64 @@ public class ChildController {
                     .body("{\"message\": \"Error deleting child: " + e.getMessage() + "\"}");
         }
     }
+
+
+    /*   @GetMapping("/{id}/full")
+    public ResponseEntity<?> getChildFullInfoById(@PathVariable Long id) {
+        try {
+            Optional<ChildResponse> childResponseOpt = childService.getChildById(id);
+            if (childResponseOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("{\"message\": \"Child not found\"}");
+            }
+
+            ChildResponse childResponse = childResponseOpt.get();
+            if (childResponse.getIdentifier() == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("{\"message\": \"Child identifier not found\"}");
+            }
+
+            return ResponseEntity.ok(childResponse);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"message\": \"Error retrieving child information: " + e.getMessage() + "\"}");
+        }
+    }
+*/
+
+    @GetMapping("/{id}/full")
+    public ResponseEntity<?> getChildFullInfoById(@PathVariable Long id) {
+        try {
+            System.out.println("=== GET CHILD FULL INFO ===");
+            System.out.println("Requested child ID: " + id);
+
+            Optional<ChildResponse> childResponseOpt = childService.getChildWithIdentifier(id);
+
+            if (childResponseOpt.isEmpty()) {
+                System.out.println("❌ Child not found with ID: " + id);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("{\"message\": \"Child not found\"}");
+            }
+
+            ChildResponse childResponse = childResponseOpt.get();
+            System.out.println("✅ Found child: " + childResponse.getName());
+            System.out.println("Child identifier: " + childResponse.getIdentifier());
+
+            if (childResponse.getIdentifier() == null) {
+                System.out.println("❌ Child identifier is null for ID: " + id);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("{\"message\": \"Child identifier not found\"}");
+            }
+
+            System.out.println("✅ Successfully returning child data");
+            return ResponseEntity.ok(childResponse);
+
+        } catch (Exception e) {
+            System.out.println("❌ ERROR in getChildFullInfoById: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"message\": \"Error retrieving child information: " + e.getMessage() + "\"}");
+        }
+    }
+
 }

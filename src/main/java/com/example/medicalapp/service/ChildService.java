@@ -2,16 +2,20 @@ package com.example.medicalapp.service;
 
 
 import com.example.medicalapp.entity.Child;
+import com.example.medicalapp.entity.ChildIdentifier;
 import com.example.medicalapp.entity.Patient;
 import com.example.medicalapp.models.ChildRequest;
 import com.example.medicalapp.models.ChildResponse;
+import com.example.medicalapp.repository.ChildIdentifierRepository;
 import com.example.medicalapp.repository.ChildRepository;
 import com.example.medicalapp.repository.PatientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,6 +26,13 @@ public class ChildService {
 
     @Autowired
     private PatientRepository patientRepository;
+
+    @Autowired
+    private ChildIdentifierRepository childIdentifierRepository;
+
+    private static final int IDENTIFIER_LENGTH = 10;
+    private static final String DIGITS = "0123456789";
+    private final Random random = new Random();
 
     public List<ChildResponse> getChildrenByParentId(Long parentId) {
         List<Child> children = childRepository.findByParentId(parentId);
@@ -47,6 +58,7 @@ public class ChildService {
                 .map(this::convertToResponse);
     }
 
+    @Transactional
     public ChildResponse createChild(ChildRequest childRequest) {
         Optional<Patient> parentOpt = patientRepository.findById(childRequest.getParentId());
         if (parentOpt.isEmpty()) {
@@ -61,6 +73,13 @@ public class ChildService {
         child.setParent(parentOpt.get());
 
         Child savedChild = childRepository.save(child);
+
+        String identifier = generateUniqueIdentifier();
+        ChildIdentifier childIdentifier = new ChildIdentifier(savedChild, identifier);
+        childIdentifierRepository.save(childIdentifier);
+
+        savedChild.setChildIdentifier(childIdentifier);
+
         return convertToResponse(savedChild);
     }
 
@@ -85,17 +104,23 @@ public class ChildService {
                 });
     }
 
+    @Transactional
     public boolean deleteChild(Long id) {
         if (childRepository.existsById(id)) {
+
+            childIdentifierRepository.findByChildId(id).ifPresent(childIdentifierRepository::delete);
             childRepository.deleteById(id);
             return true;
         }
         return false;
     }
 
+    @Transactional
     public boolean deleteChildByParentId(Long id, Long parentId) {
         Optional<Child> childOpt = childRepository.findByIdAndParentId(id, parentId);
         if (childOpt.isPresent()) {
+
+            childIdentifierRepository.findByChildId(id).ifPresent(childIdentifierRepository::delete);
             childRepository.deleteById(id);
             return true;
         }
@@ -112,6 +137,50 @@ public class ChildService {
         response.setParentId(child.getParent().getId());
         response.setCreatedAt(child.getCreatedAt());
         response.setUpdatedAt(child.getUpdatedAt());
+
+        if (child.getChildIdentifier() != null) {
+            response.setIdentifier(child.getChildIdentifier().getIdentifier());
+        }
+
         return response;
+    }
+
+    private String generateUniqueIdentifier() {
+        String identifier;
+        do {
+            identifier = generateRandomIdentifier();
+        } while (childIdentifierRepository.existsByIdentifier(identifier));
+
+        return identifier;
+    }
+
+    private String generateRandomIdentifier() {
+        StringBuilder sb = new StringBuilder(IDENTIFIER_LENGTH);
+        for (int i = 0; i < IDENTIFIER_LENGTH; i++) {
+            sb.append(DIGITS.charAt(random.nextInt(DIGITS.length())));
+        }
+        return sb.toString();
+    }
+
+    public Optional<ChildResponse> getChildByIdentifier(String identifier) {
+        return childIdentifierRepository.findByIdentifier(identifier)
+                .map(ChildIdentifier::getChild)
+                .map(this::convertToResponse);
+    }
+
+
+
+    public Optional<ChildResponse> getChildWithIdentifier(Long id) {
+        return childRepository.findById(id)
+                .map(child -> {
+                    ChildResponse response = convertToResponse(child);
+
+                    if (response.getIdentifier() == null) {
+
+                        childIdentifierRepository.findByChildId(id)
+                                .ifPresent(identifier -> response.setIdentifier(identifier.getIdentifier()));
+                    }
+                    return response;
+                });
     }
 }
