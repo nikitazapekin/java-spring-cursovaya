@@ -9,7 +9,6 @@ public class ChildRequest {
     private String gender;
     private Long parentId;
 
-    // Constructors
     public ChildRequest() {}
 
     public ChildRequest(String name, Integer age, String gender, Long parentId) {
@@ -19,7 +18,6 @@ public class ChildRequest {
         this.parentId = parentId;
     }
 
-    // Getters and Setters
     public String getAvatar() { return avatar; }
     public void setAvatar(String avatar) { this.avatar = avatar; }
 

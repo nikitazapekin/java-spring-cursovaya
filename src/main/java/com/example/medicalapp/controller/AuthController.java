@@ -34,11 +34,9 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(authResponse);
         }
 
-        // Получаем роль из ответа и определяем тип пользователя
         String role = authResponse.getRole();
         String userType = "DOCTOR".equalsIgnoreCase(role) ? "DOCTOR" : "PATIENT";
 
-        // Генерируем refresh token с правильными параметрами
         String refreshToken = jwtService.generateRefreshToken(request.getEmail(), role, userType);
         setRefreshTokenCookie(response, refreshToken);
 
@@ -55,11 +53,9 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(authResponse);
         }
 
-        // Получаем роль из ответа и определяем тип пользователя
         String role = authResponse.getRole();
         String userType = "DOCTOR".equalsIgnoreCase(role) ? "DOCTOR" : "PATIENT";
 
-        // Генерируем refresh token с правильными параметрами
         String refreshToken = jwtService.generateRefreshToken(request.getEmail(), role, userType);
         setRefreshTokenCookie(response, refreshToken);
 
@@ -78,7 +74,7 @@ public class AuthController {
         AuthResponse authResponse = authService.refreshToken(refreshToken);
 
         if (authResponse.getMessage() != null) {
-            // Если refresh token невалиден, очищаем cookie
+
             clearRefreshTokenCookie(response);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(authResponse);
         }
@@ -88,7 +84,7 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<AuthResponse> logout(HttpServletResponse response) {
-        // Просто очищаем refresh token cookie
+
         clearRefreshTokenCookie(response);
         return ResponseEntity.ok(new AuthResponse("Logged out successfully"));
     }
@@ -114,10 +110,10 @@ public class AuthController {
     private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
         Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
         refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(false); // Для локальной разработки false, в production - true
+        refreshTokenCookie.setSecure(false);
         refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge((int) (jwtService.getRefreshExpiration() / 1000)); // Convert to seconds
-        refreshTokenCookie.setAttribute("SameSite", "Lax"); // Используем Lax вместо None для локальной разработки
+        refreshTokenCookie.setMaxAge((int) (jwtService.getRefreshExpiration() / 1000));
+        refreshTokenCookie.setAttribute("SameSite", "Lax");
 
         response.addCookie(refreshTokenCookie);
     }

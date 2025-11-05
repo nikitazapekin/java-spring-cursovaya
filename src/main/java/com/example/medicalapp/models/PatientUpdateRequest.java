@@ -7,7 +7,6 @@ public   class PatientUpdateRequest {
     private String phoneNumber;
     private String citate;
 
-    // Геттеры и сеттеры
     public String getFirstName() { return firstName; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
 

@@ -16,10 +16,10 @@ public class JwtService {
     @Value("${jwt.secret:defaultSecretKeyForDevelopment123!}")
     private String jwtSecret;
 
-    @Value("${jwt.access.expiration:1130000}")
+    @Value("${jwt.access.expiration:30000}")
     private Long accessExpiration;
 
-    @Value("${jwt.refresh.expiration:33160000}")
+    @Value("${jwt.refresh.expiration:60000}")
     private Long refreshExpiration;
 
     public String generateAccessToken(String email, String role, String userType) {
@@ -99,7 +99,6 @@ public class JwtService {
         }
     }
 
-    // Остальные методы без изменений...
     private String createToken(Map<String, Object> headers, Map<String, Object> payload) {
         String headerJson = mapToJson(headers);
         String payloadJson = mapToJson(payload);

@@ -44,7 +44,6 @@ public class Doctor {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    // Constructors
     public Doctor() {
         this.createdAt = LocalDateTime.now();
         this.rate = 0.00;

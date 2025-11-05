@@ -49,7 +49,6 @@ public class AuthService {
 
         String userType = "DOCTOR".equalsIgnoreCase(user.getRole()) ? "DOCTOR" : "PATIENT";
 
-        // Create corresponding profile based on role
         if ("DOCTOR".equalsIgnoreCase(user.getRole())) {
             Doctor doctor = new Doctor(user, request.getFirstName(), request.getLastName());
             doctorRepository.save(doctor);

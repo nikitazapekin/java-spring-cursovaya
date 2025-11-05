@@ -65,7 +65,6 @@ public class PatientController {
         }
     }
 
-    // Добавляем новый эндпоинт для обновления аватара
     @PutMapping("/updateAvatar")
     public ResponseEntity<?> updatePatientAvatar(HttpServletRequest request, @RequestBody AvatarUpdateRequest avatarRequest) {
         try {

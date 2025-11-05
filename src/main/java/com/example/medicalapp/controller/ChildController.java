@@ -177,28 +177,6 @@ public class ChildController {
     }
 
 
-    /*   @GetMapping("/{id}/full")
-    public ResponseEntity<?> getChildFullInfoById(@PathVariable Long id) {
-        try {
-            Optional<ChildResponse> childResponseOpt = childService.getChildById(id);
-            if (childResponseOpt.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("{\"message\": \"Child not found\"}");
-            }
-
-            ChildResponse childResponse = childResponseOpt.get();
-            if (childResponse.getIdentifier() == null) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body("{\"message\": \"Child identifier not found\"}");
-            }
-
-            return ResponseEntity.ok(childResponse);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("{\"message\": \"Error retrieving child information: " + e.getMessage() + "\"}");
-        }
-    }
-*/
 
     @GetMapping("/{id}/full")
     public ResponseEntity<?> getChildFullInfoById(@PathVariable Long id) {
@@ -209,17 +187,16 @@ public class ChildController {
             Optional<ChildResponse> childResponseOpt = childService.getChildWithIdentifier(id);
 
             if (childResponseOpt.isEmpty()) {
-                System.out.println("❌ Child not found with ID: " + id);
+
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body("{\"message\": \"Child not found\"}");
             }
 
             ChildResponse childResponse = childResponseOpt.get();
-            System.out.println("✅ Found child: " + childResponse.getName());
-            System.out.println("Child identifier: " + childResponse.getIdentifier());
+
 
             if (childResponse.getIdentifier() == null) {
-                System.out.println("❌ Child identifier is null for ID: " + id);
+
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body("{\"message\": \"Child identifier not found\"}");
             }
@@ -228,7 +205,7 @@ public class ChildController {
             return ResponseEntity.ok(childResponse);
 
         } catch (Exception e) {
-            System.out.println("❌ ERROR in getChildFullInfoById: " + e.getMessage());
+
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("{\"message\": \"Error retrieving child information: " + e.getMessage() + "\"}");
