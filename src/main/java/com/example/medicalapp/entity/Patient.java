@@ -33,7 +33,7 @@ public class Patient {
 
     @Column(columnDefinition = "TEXT")
     private String avatar;
-    //private String avatar;
+
     private String citate;
 
     @Column(name = "created_at")
