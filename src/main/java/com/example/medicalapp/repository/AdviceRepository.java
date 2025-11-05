@@ -12,4 +12,5 @@ public interface AdviceRepository extends CrudRepository<Advice, Long> {
     List<Advice> findByType(String type);
     Optional<Advice> findById(Long id);
     boolean existsByType(String type);
+    long countByType(String type);
 }

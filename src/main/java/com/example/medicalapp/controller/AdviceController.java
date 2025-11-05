@@ -57,6 +57,44 @@ public class AdviceController {
         }
     }
 
+
+
+    @GetMapping("/random")
+    public ResponseEntity<?> getRandomAdvice() {
+        try {
+            Optional<AdviceResponse> randomAdvice = adviceService.findRandomAdvice();
+
+            if (randomAdvice.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("{\"message\": \"No advice available\"}");
+            }
+
+            return ResponseEntity.ok(randomAdvice.get());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"message\": \"Error retrieving random advice: " + e.getMessage() + "\"}");
+        }
+    }
+
+
+    @GetMapping("/random/{type}")
+    public ResponseEntity<?> getRandomAdviceByType(@PathVariable String type) {
+        try {
+            Optional<AdviceResponse> randomAdvice = adviceService.findRandomAdviceByType(type);
+
+            if (randomAdvice.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("{\"message\": \"No advice available for type: " + type + "\"}");
+            }
+
+            return ResponseEntity.ok(randomAdvice.get());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"message\": \"Error retrieving random advice by type: " + e.getMessage() + "\"}");
+        }
+    }
+
+
     @PostMapping
     public ResponseEntity<?> createAdvice(@RequestBody Advice advice) {
         try {

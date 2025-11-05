@@ -5,12 +5,15 @@ import com.example.medicalapp.models.AdviceResponse;
 import com.example.medicalapp.repository.AdviceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import java.util.Random;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class AdviceService {
+
+
+    private final Random random = new Random();
 
     @Autowired
     private AdviceRepository adviceRepository;
@@ -66,4 +69,28 @@ public class AdviceService {
                 .map(this::convertToResponse)
                 .toList();
     }
+
+    public Optional<AdviceResponse> findRandomAdvice() {
+        List<Advice> allAdvice = findAll();
+
+        if (allAdvice.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Advice randomAdvice = allAdvice.get(random.nextInt(allAdvice.size()));
+        return Optional.of(convertToResponse(randomAdvice));
+    }
+
+    public Optional<AdviceResponse> findRandomAdviceByType(String type) {
+        List<Advice> adviceByType = findByType(type);
+
+        if (adviceByType.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Advice randomAdvice = adviceByType.get(random.nextInt(adviceByType.size()));
+        return Optional.of(convertToResponse(randomAdvice));
+    }
+
+
 }
