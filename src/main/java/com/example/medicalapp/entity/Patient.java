@@ -2,10 +2,12 @@ package com.example.medicalapp.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "patient")
 public class Patient {
+
     @Id
     private Long id;
 
@@ -27,11 +29,22 @@ public class Patient {
     private String phoneNumber;
 
     private String region;
+
+
+    @Column(columnDefinition = "TEXT")
     private String avatar;
+    //private String avatar;
     private String citate;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<PaymentHistory> paymentHistories;
+
+    public List<PaymentHistory> getPaymentHistories() { return paymentHistories; }
+    public void setPaymentHistories(List<PaymentHistory> paymentHistories) { this.paymentHistories = paymentHistories; }
 
     public Patient() {
         this.createdAt = LocalDateTime.now();
