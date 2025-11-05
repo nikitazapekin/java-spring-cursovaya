@@ -81,4 +81,7 @@ public class DoctorController {
 
         return response;
     }
+
+    public static class MedicalCardController {
+    }
 }
