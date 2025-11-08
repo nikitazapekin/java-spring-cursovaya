@@ -40,7 +40,6 @@ public class AuthService {
             return new AuthResponse("Email already exists");
         }
 
-        // Create User
         User user = new User();
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -60,7 +59,8 @@ public class AuthService {
         String accessToken = jwtService.generateAccessToken(user.getEmail(), user.getRole(), userType);
         String refreshToken = jwtService.generateRefreshToken(user.getEmail(), user.getRole(), userType);
 
-        AuthResponse response = new AuthResponse(accessToken, user.getRole(), user.getEmail());
+
+        AuthResponse response = new AuthResponse(accessToken, user.getRole(), user.getEmail(), user.getId());
         return response;
     }
 
@@ -77,7 +77,8 @@ public class AuthService {
         String accessToken = jwtService.generateAccessToken(user.getEmail(), user.getRole(), userType);
         String refreshToken = jwtService.generateRefreshToken(user.getEmail(), user.getRole(), userType);
 
-        AuthResponse response = new AuthResponse(accessToken, user.getRole(), user.getEmail());
+
+        AuthResponse response = new AuthResponse(accessToken, user.getRole(), user.getEmail(), user.getId());
         return response;
     }
 
@@ -97,7 +98,7 @@ public class AuthService {
         String userType = jwtService.getUserTypeFromToken(refreshToken);
         String newAccessToken = jwtService.generateAccessToken(user.getEmail(), user.getRole(), userType);
 
-        return new AuthResponse(newAccessToken, user.getRole(), user.getEmail());
+        return new AuthResponse(newAccessToken, user.getRole(), user.getEmail(), user.getId());
     }
 
     public boolean validateAccessToken(String accessToken) {

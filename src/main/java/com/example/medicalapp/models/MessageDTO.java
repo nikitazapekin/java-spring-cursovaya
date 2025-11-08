@@ -6,10 +6,11 @@ public class MessageDTO {
     private Long id;
     private String message;
     private String from;
+    private Long senderId;
     private LocalDateTime time;
     private Boolean isRead;
     private Long chatId;
-    private String type; // "user" or "doctor"
+    private String type;
 
     public MessageDTO() {}
 
@@ -21,6 +22,9 @@ public class MessageDTO {
 
     public String getFrom() { return from; }
     public void setFrom(String from) { this.from = from; }
+
+    public Long getSenderId() { return senderId; }
+    public void setSenderId(Long senderId) { this.senderId = senderId; }
 
     public LocalDateTime getTime() { return time; }
     public void setTime(LocalDateTime time) { this.time = time; }

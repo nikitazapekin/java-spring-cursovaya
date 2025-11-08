@@ -1,6 +1,5 @@
 package com.example.medicalapp.controller;
 
-
 import com.example.medicalapp.models.ChatDTO;
 import com.example.medicalapp.models.MessageDTO;
 import com.example.medicalapp.service.ChatService;
@@ -29,17 +28,19 @@ public class ChatController {
         return ResponseEntity.ok(chats);
     }
 
-    @GetMapping("/user/messages/{chatId}")
+    @GetMapping("/user/{chatId}/messages")
     public ResponseEntity<List<MessageDTO>> getUserChatMessages(@PathVariable Long chatId) {
         List<MessageDTO> messages = chatService.getUserChatMessages(chatId);
         return ResponseEntity.ok(messages);
     }
 
-    @GetMapping("/doctor/messages/{chatId}")
+
+    @GetMapping("/doctor/{chatId}/messages")
     public ResponseEntity<List<MessageDTO>> getDoctorChatMessages(@PathVariable Long chatId) {
         List<MessageDTO> messages = chatService.getDoctorChatMessages(chatId);
         return ResponseEntity.ok(messages);
     }
+
 
     @PostMapping("/start")
     public ResponseEntity<Long> startChat(

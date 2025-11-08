@@ -17,6 +17,9 @@ import java.util.stream.Collectors;
 public class ChatService {
 
     @Autowired
+    private ChatBaseRepository chatBaseRepository;
+
+    @Autowired
     private UserChatsRepository userChatsRepository;
 
     @Autowired
@@ -34,66 +37,16 @@ public class ChatService {
     @Autowired
     private DoctorRepository doctorRepository;
 
-    public List<ChatDTO> getUserChats(Long patientId) {
-        List<UserChats> chats = userChatsRepository.findByPatientId(patientId);
-        return chats.stream().map(this::convertToChatDTO).collect(Collectors.toList());
-    }
-
-    public List<ChatDTO> getDoctorChats(Long doctorId) {
-        List<DoctorChats> chats = doctorChatsRepository.findByDoctorId(doctorId);
-        return chats.stream().map(this::convertToChatDTO).collect(Collectors.toList());
-    }
-
-    public List<MessageDTO> getUserChatMessages(Long chatId) {
-        List<UserMessages> messages = userMessagesRepository.findByChatIdOrderByTimeAsc(chatId);
-        return messages.stream().map(this::convertToMessageDTO).collect(Collectors.toList());
-    }
-
-    public List<MessageDTO> getDoctorChatMessages(Long chatId) {
-        List<DoctorMessages> messages = doctorMessagesRepository.findByChatIdOrderByTimeAsc(chatId);
-        return messages.stream().map(this::convertToMessageDTO).collect(Collectors.toList());
-    }
-
     @Transactional
-    public MessageDTO sendUserMessage(Long chatId, String message, String from) {
-        Optional<UserChats> chatOpt = userChatsRepository.findById(chatId);
-        if (chatOpt.isPresent()) {
-            UserChats chat = chatOpt.get();
-            UserMessages userMessage = new UserMessages(chat, message, from);
-            userMessage = userMessagesRepository.save(userMessage);
-
-            // Update last message in chat
-            chat.setLastMessage(message);
-            chat.setLastMessageTime(LocalDateTime.now());
-            userChatsRepository.save(chat);
-
-            return convertToMessageDTO(userMessage);
-        }
-        throw new RuntimeException("Chat not found");
-    }
-
-    @Transactional
-    public MessageDTO sendDoctorMessage(Long chatId, String message, String from) {
-        Optional<DoctorChats> chatOpt = doctorChatsRepository.findById(chatId);
-        if (chatOpt.isPresent()) {
-            DoctorChats chat = chatOpt.get();
-            DoctorMessages doctorMessage = new DoctorMessages(chat, message, from);
-            doctorMessage = doctorMessagesRepository.save(doctorMessage);
-
-
-            chat.setLastMessage(message);
-            chat.setLastMessageTime(LocalDateTime.now());
-            doctorChatsRepository.save(chat);
-
-            return convertToMessageDTO(doctorMessage);
-        }
-        throw new RuntimeException("Chat not found");
-    }
-
     public Long getOrCreateUserChat(Long patientId, Long doctorId) {
-        Optional<UserChats> existingChat = userChatsRepository.findByPatientIdAndDoctorId(patientId, doctorId);
-        if (existingChat.isPresent()) {
-            return existingChat.get().getId();
+        System.out.println("=== Getting or creating chat ===");
+        System.out.println("PatientId: " + patientId + ", DoctorId: " + doctorId);
+
+        Optional<ChatBase> existingChatBase = chatBaseRepository.findByPatientIdAndDoctorId(patientId, doctorId);
+        if (existingChatBase.isPresent()) {
+            Long chatId = existingChatBase.get().getId();
+            System.out.println("Existing chat found: " + chatId);
+            return chatId;
         }
 
         Optional<Patient> patientOpt = patientRepository.findById(patientId);
@@ -103,21 +56,144 @@ public class ChatService {
             Patient patient = patientOpt.get();
             Doctor doctor = doctorOpt.get();
 
-            String chatName = "Чат с доктором " + doctor.getFirstName() + " " + doctor.getLastName();
-            UserChats newChat = new UserChats(patient, chatName, doctor.getAvatar(), doctorId);
-            newChat = userChatsRepository.save(newChat);
+            ChatBase chatBase = new ChatBase(patientId, doctorId);
+            chatBase = chatBaseRepository.save(chatBase);
+            Long chatId = chatBase.getId();
+            System.out.println("Chat base created with ID: " + chatId);
 
-            // Create corresponding doctor chat
+            String userChatName = "Чат с доктором " + doctor.getFirstName() + " " + doctor.getLastName();
+            if (userChatName.length() > 255) {
+                userChatName = userChatName.substring(0, 255);
+            }
+
+            String doctorAvatar = doctor.getAvatar();
+            if (doctorAvatar != null && doctorAvatar.length() > 500) {
+                doctorAvatar = doctorAvatar.substring(0, 500);
+            }
+
+            UserChats userChat = new UserChats(chatBase, patient, userChatName, doctorAvatar);
+            userChatsRepository.save(userChat);
+            System.out.println("User chat created with ID: " + chatId);
             String doctorChatName = "Чат с пациентом " + patient.getFirstName() + " " + patient.getLastName();
-            DoctorChats doctorChat = new DoctorChats(doctor, doctorChatName, patient.getAvatar(), patientId);
-            doctorChatsRepository.save(doctorChat);
+            if (doctorChatName.length() > 255) {
+                doctorChatName = doctorChatName.substring(0, 255);
+            }
 
-            return newChat.getId();
+            String patientAvatar = patient.getAvatar();
+            if (patientAvatar != null && patientAvatar.length() > 500) {
+                patientAvatar = patientAvatar.substring(0, 500);
+            }
+
+            DoctorChats doctorChat = new DoctorChats(chatBase, doctor, doctorChatName, patientAvatar);
+            doctorChatsRepository.save(doctorChat);
+            System.out.println("Doctor chat created with ID: " + chatId);
+
+            return chatId;
         }
+
+        System.out.println("ERROR: Patient or Doctor not found. PatientId: " + patientId + ", DoctorId: " + doctorId);
         throw new RuntimeException("Patient or Doctor not found");
     }
 
-    private ChatDTO convertToChatDTO(UserChats chat) {
+    @Transactional
+    public MessageDTO sendMessageToUserChat(Long chatId, String message, String senderType, Long senderId) {
+        System.out.println("=== Sending message to USER chat ===");
+        System.out.println("ChatId: " + chatId + ", Message: " + message + ", Sender: " + senderId + ", Type: " + senderType);
+
+        Optional<UserChats> chatOpt = userChatsRepository.findById(chatId);
+        if (chatOpt.isPresent()) {
+            UserChats chat = chatOpt.get();
+            System.out.println("User chat found: " + chat.getId());
+
+            UserMessages userMessage = new UserMessages(chat, message, senderType, senderId);
+            userMessage = userMessagesRepository.save(userMessage);
+            System.out.println("User message saved with ID: " + userMessage.getId());
+
+            chat.setLastMessage(message);
+            chat.setLastMessageTime(LocalDateTime.now());
+            userChatsRepository.save(chat);
+
+            Optional<DoctorChats> doctorChatOpt = doctorChatsRepository.findById(chatId);
+            if (doctorChatOpt.isPresent()) {
+                DoctorChats doctorChat = doctorChatOpt.get();
+                doctorChat.setLastMessage(message);
+                doctorChat.setLastMessageTime(LocalDateTime.now());
+                doctorChatsRepository.save(doctorChat);
+
+                DoctorMessages doctorMessage = new DoctorMessages(doctorChat, message, senderType, senderId);
+                doctorMessagesRepository.save(doctorMessage);
+                System.out.println("Doctor message saved with ID: " + doctorMessage.getId());
+            } else {
+                System.out.println("WARNING: Corresponding doctor chat not found for chatId: " + chatId);
+            }
+
+            return convertUserMessageToDTO(userMessage);
+        }
+        System.out.println("ERROR: User chat not found with id: " + chatId);
+        throw new RuntimeException("User chat not found with id: " + chatId);
+    }
+
+    @Transactional
+    public MessageDTO sendMessageToDoctorChat(Long chatId, String message, String senderType, Long senderId) {
+        System.out.println("=== Sending message to DOCTOR chat ===");
+        System.out.println("ChatId: " + chatId + ", Message: " + message + ", Sender: " + senderId + ", Type: " + senderType);
+
+        Optional<DoctorChats> chatOpt = doctorChatsRepository.findById(chatId);
+        if (chatOpt.isPresent()) {
+            DoctorChats chat = chatOpt.get();
+            System.out.println("Doctor chat found: " + chat.getId());
+
+            DoctorMessages doctorMessage = new DoctorMessages(chat, message, senderType, senderId);
+            doctorMessage = doctorMessagesRepository.save(doctorMessage);
+            System.out.println("Doctor message saved with ID: " + doctorMessage.getId());
+
+            chat.setLastMessage(message);
+            chat.setLastMessageTime(LocalDateTime.now());
+            doctorChatsRepository.save(chat);
+
+            Optional<UserChats> userChatOpt = userChatsRepository.findById(chatId);
+            if (userChatOpt.isPresent()) {
+                UserChats userChat = userChatOpt.get();
+                userChat.setLastMessage(message);
+                userChat.setLastMessageTime(LocalDateTime.now());
+                userChatsRepository.save(userChat);
+
+
+                UserMessages userMessage = new UserMessages(userChat, message, senderType, senderId);
+                userMessagesRepository.save(userMessage);
+
+            } else {
+                System.out.println("WARNING: Corresponding user chat not found for chatId: " + chatId);
+            }
+
+            return convertDoctorMessageToDTO(doctorMessage);
+        }
+
+        throw new RuntimeException("Doctor chat not found with id: " + chatId);
+    }
+
+    public List<ChatDTO> getUserChats(Long patientId) {
+        List<UserChats> chats = userChatsRepository.findByPatientId(patientId);
+        return chats.stream().map(this::convertUserChatToDTO).collect(Collectors.toList());
+    }
+
+    public List<ChatDTO> getDoctorChats(Long doctorId) {
+        List<DoctorChats> chats = doctorChatsRepository.findByDoctorId(doctorId);
+        return chats.stream().map(this::convertDoctorChatToDTO).collect(Collectors.toList());
+    }
+
+    public List<MessageDTO> getUserChatMessages(Long chatId) {
+        List<UserMessages> messages = userMessagesRepository.findByChatIdOrderByTimeAsc(chatId);
+        return messages.stream().map(this::convertUserMessageToDTO).collect(Collectors.toList());
+    }
+
+    public List<MessageDTO> getDoctorChatMessages(Long chatId) {
+        List<DoctorMessages> messages = doctorMessagesRepository.findByChatIdOrderByTimeAsc(chatId);
+        return messages.stream().map(this::convertDoctorMessageToDTO).collect(Collectors.toList());
+    }
+
+
+    private ChatDTO convertUserChatToDTO(UserChats chat) {
         ChatDTO dto = new ChatDTO();
         dto.setId(chat.getId());
         dto.setChatName(chat.getChatName());
@@ -125,10 +201,19 @@ public class ChatService {
         dto.setLastMessageTime(chat.getLastMessageTime());
         dto.setAvatar(chat.getAvatar());
         dto.setParticipantId(chat.getDoctorId());
+
+        if (chat.getDoctorId() != null) {
+            Optional<Doctor> doctorOpt = doctorRepository.findById(chat.getDoctorId());
+            if (doctorOpt.isPresent()) {
+                Doctor doctor = doctorOpt.get();
+                dto.setParticipantName(doctor.getFirstName() + " " + doctor.getLastName());
+            }
+        }
+
         return dto;
     }
 
-    private ChatDTO convertToChatDTO(DoctorChats chat) {
+    private ChatDTO convertDoctorChatToDTO(DoctorChats chat) {
         ChatDTO dto = new ChatDTO();
         dto.setId(chat.getId());
         dto.setChatName(chat.getChatName());
@@ -136,14 +221,24 @@ public class ChatService {
         dto.setLastMessageTime(chat.getLastMessageTime());
         dto.setAvatar(chat.getAvatar());
         dto.setParticipantId(chat.getPatientId());
+
+        if (chat.getPatientId() != null) {
+            Optional<Patient> patientOpt = patientRepository.findById(chat.getPatientId());
+            if (patientOpt.isPresent()) {
+                Patient patient = patientOpt.get();
+                dto.setParticipantName(patient.getFirstName() + " " + patient.getLastName());
+            }
+        }
+
         return dto;
     }
 
-    private MessageDTO convertToMessageDTO(UserMessages message) {
+    private MessageDTO convertUserMessageToDTO(UserMessages message) {
         MessageDTO dto = new MessageDTO();
         dto.setId(message.getId());
         dto.setMessage(message.getMessage());
-        dto.setFrom(message.getFrom());
+        dto.setFrom(message.getSender());
+        dto.setSenderId(message.getSenderId());
         dto.setTime(message.getTime());
         dto.setIsRead(message.getIsRead());
         dto.setChatId(message.getChat().getId());
@@ -151,11 +246,12 @@ public class ChatService {
         return dto;
     }
 
-    private MessageDTO convertToMessageDTO(DoctorMessages message) {
+    private MessageDTO convertDoctorMessageToDTO(DoctorMessages message) {
         MessageDTO dto = new MessageDTO();
         dto.setId(message.getId());
         dto.setMessage(message.getMessage());
-        dto.setFrom(message.getFrom());
+        dto.setFrom(message.getSender());
+        dto.setSenderId(message.getSenderId());
         dto.setTime(message.getTime());
         dto.setIsRead(message.getIsRead());
         dto.setChatId(message.getChat().getId());

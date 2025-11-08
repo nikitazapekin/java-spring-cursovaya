@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface DoctorMessagesRepository extends CrudRepository<DoctorMessages, Long> {
     List<DoctorMessages> findByChatIdOrderByTimeAsc(Long chatId);
+    List<DoctorMessages> findByChatIdAndSenderIdOrderByTimeAsc(Long chatId, Long senderId);
 }

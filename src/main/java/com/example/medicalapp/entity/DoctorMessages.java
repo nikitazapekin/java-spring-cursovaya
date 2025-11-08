@@ -1,3 +1,4 @@
+
 package com.example.medicalapp.entity;
 
 import jakarta.persistence.*;
@@ -18,7 +19,10 @@ public class DoctorMessages {
     private String message;
 
     @Column(nullable = false)
-    private String from;
+    private String sender;
+
+    @Column(name = "sender_id", nullable = false)
+    private Long senderId;
 
     @Column(nullable = false)
     private LocalDateTime time;
@@ -31,10 +35,11 @@ public class DoctorMessages {
         this.isRead = false;
     }
 
-    public DoctorMessages(DoctorChats chat, String message, String from) {
+    public DoctorMessages(DoctorChats chat, String message, String sender, Long senderId) {
         this.chat = chat;
         this.message = message;
-        this.from = from;
+        this.sender = sender;
+        this.senderId = senderId;
         this.time = LocalDateTime.now();
         this.isRead = false;
     }
@@ -48,8 +53,11 @@ public class DoctorMessages {
     public String getMessage() { return message; }
     public void setMessage(String message) { this.message = message; }
 
-    public String getFrom() { return from; }
-    public void setFrom(String from) { this.from = from; }
+    public String getSender() { return sender; }
+    public void setSender(String sender) { this.sender = sender; }
+
+    public Long getSenderId() { return senderId; }
+    public void setSenderId(Long senderId) { this.senderId = senderId; }
 
     public LocalDateTime getTime() { return time; }
     public void setTime(LocalDateTime time) { this.time = time; }

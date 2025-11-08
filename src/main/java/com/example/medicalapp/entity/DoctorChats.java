@@ -7,17 +7,20 @@ import java.time.LocalDateTime;
 @Table(name = "doctor_chats")
 public class DoctorChats {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id")
+    private ChatBase chatBase;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "doctor_id", nullable = false)
+    @JoinColumn(name = "doctor_id", nullable = false, insertable = false, updatable = false)
     private Doctor doctor;
 
-    @Column(name = "chat_name", nullable = false)
+    @Column(name = "chat_name", nullable = false, length = 255)
     private String chatName;
 
-    @Column(name = "last_message")
+    @Column(name = "last_message", length = 1000)
     private String lastMessage;
 
     @Column(name = "last_message_time")
@@ -25,7 +28,7 @@ public class DoctorChats {
 
     private String avatar;
 
-    @Column(name = "patient_id")
+    @Column(name = "patient_id", insertable = false, updatable = false)
     private Long patientId;
 
     @Column(name = "created_at")
@@ -35,17 +38,20 @@ public class DoctorChats {
         this.createdAt = LocalDateTime.now();
     }
 
-    public DoctorChats(Doctor doctor, String chatName, String avatar, Long patientId) {
+    public DoctorChats(ChatBase chatBase, Doctor doctor, String chatName, String avatar) {
+        this();
+        this.id = chatBase.getId();
+        this.chatBase = chatBase;
         this.doctor = doctor;
         this.chatName = chatName;
         this.avatar = avatar;
-        this.patientId = patientId;
-        this.createdAt = LocalDateTime.now();
     }
 
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+
+    public ChatBase getChatBase() { return chatBase; }
+    public void setChatBase(ChatBase chatBase) { this.chatBase = chatBase; }
 
     public Doctor getDoctor() { return doctor; }
     public void setDoctor(Doctor doctor) { this.doctor = doctor; }

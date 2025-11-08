@@ -1,8 +1,10 @@
 package com.example.medicalapp.controller;
 
+import com.example.medicalapp.entity.User;
 import com.example.medicalapp.models.AuthRequest;
 import com.example.medicalapp.models.AuthResponse;
 import com.example.medicalapp.models.RegisterRequest;
+import com.example.medicalapp.repository.UserRepository;
 import com.example.medicalapp.service.AuthService;
 import com.example.medicalapp.service.JwtService;
 import jakarta.servlet.http.Cookie;
@@ -13,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -22,6 +26,10 @@ public class AuthController {
 
     @Autowired
     private JwtService jwtService;
+
+
+    @Autowired
+    private UserRepository userRepository;
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request,
@@ -101,7 +109,15 @@ public class AuthController {
         if (isValid) {
             String email = jwtService.getEmailFromToken(accessToken);
             String role = jwtService.getRoleFromToken(accessToken);
-            return ResponseEntity.ok(new AuthResponse("Token is valid", role, email));
+
+            Optional<User> userOptional = userRepository.findByEmail(email);
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+                AuthResponse response = new AuthResponse("Token is valid", role, email, user.getId());
+                return ResponseEntity.ok(response);
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponse("User not found"));
+            }
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponse("Invalid token"));
         }

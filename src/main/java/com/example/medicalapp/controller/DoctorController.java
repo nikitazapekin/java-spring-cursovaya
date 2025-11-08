@@ -24,8 +24,12 @@ public class DoctorController {
 
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentDoctor(HttpServletRequest request) {
+        System.out.println("RECEIVE ");
+        String userEmail = (String) request.getAttribute("userEmail");
+        System.out.println("email ");
+        System.out.println(userEmail);
         try {
-            String userEmail = (String) request.getAttribute("userEmail");
+
             Optional<Doctor> doctorOpt = doctorRepository.findByUserEmail(userEmail);
 
             if (doctorOpt.isEmpty()) {
