@@ -42,6 +42,24 @@ public class ChatController {
     }
 
 
+    @GetMapping("/my-chats")
+    public ResponseEntity<List<ChatDTO>> getMyChats(@RequestParam Long userId, @RequestParam String userRole) {
+        System.out.println("=== Getting chats for userId: " + userId + ", role: " + userRole + " ===");
+        try {
+            List<ChatDTO> chats;
+            if ("DOCTOR".equals(userRole)) {
+                chats = chatService.getDoctorChats(userId);
+            } else {
+                chats = chatService.getUserChats(userId);
+            }
+            System.out.println("Found " + chats.size() + " chats");
+            return ResponseEntity.ok(chats);
+        } catch (Exception e) {
+            System.out.println("Error getting my chats: " + e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     @PostMapping("/start")
     public ResponseEntity<Long> startChat(
             @RequestParam Long patientId,
