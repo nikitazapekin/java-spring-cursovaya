@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
-
+import java.util.List;
 @RestController
 @RequestMapping("/api/patients")
 public class PatientController {
@@ -162,6 +162,61 @@ public class PatientController {
         }
     }
 
+
+
+
+
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchPatients(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String lastName) {
+
+        try {
+            List<PatientResponse> patients;
+
+            if (name != null && !name.trim().isEmpty()) {
+
+                patients = patientService.searchPatientsByName(name.trim());
+            } else if (firstName != null && !firstName.trim().isEmpty()) {
+
+                patients = patientService.searchPatientsByFirstName(firstName.trim());
+            } else if (lastName != null && !lastName.trim().isEmpty()) {
+
+                patients = patientService.searchPatientsByLastName(lastName.trim());
+            } else {
+                return ResponseEntity.badRequest()
+                        .body("{\"message\": \"Please provide search parameters: name, firstName, or lastName\"}");
+            }
+
+            if (patients.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("{\"message\": \"No patients found matching the search criteria\"}");
+            }
+
+            return ResponseEntity.ok(patients);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"message\": \"Error searching patients: " + e.getMessage() + "\"}");
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getAllPatients() {
+        try {
+            List<Patient> patients = patientService.findAll();
+            List<PatientResponse> response = patients.stream()
+                    .map(patientService::convertToResponse)
+                    .collect(java.util.stream.Collectors.toList());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"message\": \"Error retrieving patients\"}");
+        }
+    }
 
 
 
