@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PatientService {
@@ -78,4 +79,32 @@ public class PatientService {
         }
         throw new RuntimeException("Patient not found for email: " + email);
     }
+
+
+
+    public List<PatientResponse> searchPatientsByName(String searchTerm) {
+        List<Patient> patients = patientRepository
+                .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(searchTerm, searchTerm);
+
+        return patients.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
+
+    public List<PatientResponse> searchPatientsByFirstName(String firstName) {
+        List<Patient> patients = patientRepository.findByFirstNameContainingIgnoreCase(firstName);
+        return patients.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<PatientResponse> searchPatientsByLastName(String lastName) {
+        List<Patient> patients = patientRepository.findByLastNameContainingIgnoreCase(lastName);
+        return patients.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
+
 }

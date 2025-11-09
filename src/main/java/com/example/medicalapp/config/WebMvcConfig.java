@@ -28,9 +28,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/api/auth/refresh");
 
 
-        registry.addInterceptor(doctorAuthMiddleware)
+/*registry.addInterceptor(doctorAuthMiddleware)
                 .addPathPatterns("/api/doctors/**", "/api/doctor/**");
 
+
+ */
         registry.addInterceptor(jwtAuthMiddleware)
                 .addPathPatterns("/api/**")
                 .excludePathPatterns("/api/auth/**", "/api/doctors/**", "/api/doctor/**");

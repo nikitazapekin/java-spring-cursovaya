@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 public class AdviceResponse {
     private Long id;
     private String type;
-    private String items; // Теперь String вместо List<Map>
+    private String items;
     private String[] recommendations;
     private LocalDateTime createdAt;
 
