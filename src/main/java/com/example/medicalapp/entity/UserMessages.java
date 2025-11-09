@@ -19,7 +19,7 @@ public class UserMessages {
     private String message;
 
     @Column(nullable = false)
-    private String sender; // "patient" или "doctor"
+    private String sender;
 
     @Column(name = "sender_id", nullable = false)
     private Long senderId;

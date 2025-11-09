@@ -201,7 +201,6 @@ public class ChildController {
                         .body("{\"message\": \"Child identifier not found\"}");
             }
 
-            System.out.println("✅ Successfully returning child data");
             return ResponseEntity.ok(childResponse);
 
         } catch (Exception e) {

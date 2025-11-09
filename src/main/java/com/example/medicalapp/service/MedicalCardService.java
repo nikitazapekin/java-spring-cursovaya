@@ -145,12 +145,11 @@ public class MedicalCardService {
                 .collect(Collectors.toList());
     }
 
-    // Новые методы для фильтрации по дате
 
     public List<DiseaseHistoryResponse> getDiseaseHistoriesByDate(Long medicalCardId, String dateString) {
         LocalDate date = parseDate(dateString);
 
-        // Ищем болезни, которые были активны на указанную дату
+
         List<DiseaseHistory> diseaseHistories = diseaseHistoryRepository
                 .findByMedicalCardIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
                         medicalCardId, date, date);
@@ -226,7 +225,6 @@ public class MedicalCardService {
         response.setCreatedAt(medicalCard.getCreatedAt());
         response.setUpdatedAt(medicalCard.getUpdatedAt());
 
-        // Конвертируем связанные сущности
         response.setDiseaseHistories(
                 medicalCard.getDiseaseHistories().stream()
                         .map(this::convertToDiseaseHistoryResponse)

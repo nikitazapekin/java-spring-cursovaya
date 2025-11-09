@@ -18,7 +18,7 @@ public class AdviceResponse {
         this.recommendations = recommendations;
     }
 
-    // Getters and Setters
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

@@ -121,7 +121,7 @@ public class ChatWebSocketController {
                     response
             );
 
-            System.out.println("=== Chat creation completed ===");
+
 
         } catch (Exception e) {
             System.out.println("ERROR starting chat: " + e.getMessage());

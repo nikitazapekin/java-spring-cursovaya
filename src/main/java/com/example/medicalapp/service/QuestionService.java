@@ -70,7 +70,6 @@ public class QuestionService {
                 .toList();
     }
 
-    // Метод для создания вопроса с проверкой существования опроса
     public Question createQuestionForSurvey(Long surveyId, Question question) {
         Optional<Survey> surveyOpt = surveyRepository.findById(surveyId);
 
@@ -83,7 +82,6 @@ public class QuestionService {
         }
     }
 
-    // Альтернативный вариант с проверкой существования опроса
     public boolean surveyExists(Long surveyId) {
         return surveyRepository.existsById(surveyId);
     }

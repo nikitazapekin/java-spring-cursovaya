@@ -3,7 +3,7 @@ package com.example.medicalapp.models;
 public class WebSocketMessage {
     private String type;
     private Long chatId;
-    private String chatType; // "user" или "doctor"
+    private String chatType;
     private String message;
     private String from;
     private Long senderId;

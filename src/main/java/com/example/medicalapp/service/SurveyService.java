@@ -15,8 +15,6 @@ public class SurveyService {
     @Autowired
     private SurveyRepository surveyRepository;
 
-    // Убираем зависимость от QuestionService
-    // Вместо этого используем прямые вызовы к репозиториям или DTO
 
     public List<Survey> findAll() {
         return (List<Survey>) surveyRepository.findAll();
@@ -50,9 +48,6 @@ public class SurveyService {
         response.setImage(survey.getImage());
         response.setCreatedAt(survey.getCreatedAt());
 
-        // Вопросы будут загружаться лениво или через отдельный endpoint
-        // Не загружаем вопросы здесь чтобы избежать циклических зависимостей
-        // response.setQuestions(null);
 
         return response;
     }
@@ -60,11 +55,8 @@ public class SurveyService {
     public SurveyResponse convertToResponseWithQuestions(Survey survey) {
         SurveyResponse response = convertToResponse(survey);
 
-        // Если вопросы уже загружены (например, через JOIN FETCH в репозитории)
-        if (survey.getQuestions() != null && !survey.getQuestions().isEmpty()) {
-            // Создаем простой список вопросов без циклических ссылок
-            // response.setQuestions(...); // Раскомментировать если нужно
-        }
+
+
 
         return response;
     }

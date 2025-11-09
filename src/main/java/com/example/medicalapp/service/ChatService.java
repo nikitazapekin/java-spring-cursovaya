@@ -172,19 +172,6 @@ public class ChatService {
         throw new RuntimeException("Doctor chat not found with id: " + chatId);
     }
 
-  /*  public List<ChatDTO> getUserChats(Long patientId) {
-        List<UserChats> chats = userChatsRepository.findByPatientId(patientId);
-        return chats.stream().map(this::convertUserChatToDTO).collect(Collectors.toList());
-    }
-
-    public List<ChatDTO> getDoctorChats(Long doctorId) {
-        List<DoctorChats> chats = doctorChatsRepository.findByDoctorId(doctorId);
-        return chats.stream().map(this::convertDoctorChatToDTO).collect(Collectors.toList());
-    }
-
-
-   */
-
     public List<ChatDTO> getUserChats(Long patientId) {
         System.out.println("Getting user chats for patientId: " + patientId);
         List<UserChats> chats = userChatsRepository.findByPatientId(patientId);

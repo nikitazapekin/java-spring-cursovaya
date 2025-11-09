@@ -57,34 +57,6 @@ public class ChildService {
         return childRepository.findByIdAndParentId(id, parentId)
                 .map(this::convertToResponse);
     }
-/*
-    @Transactional
-    public ChildResponse createChild(ChildRequest childRequest) {
-        Optional<Patient> parentOpt = patientRepository.findById(childRequest.getParentId());
-        if (parentOpt.isEmpty()) {
-            throw new RuntimeException("Parent not found with id: " + childRequest.getParentId());
-        }
-
-        Child child = new Child();
-        child.setName(childRequest.getName());
-        child.setAge(childRequest.getAge());
-        child.setGender(childRequest.getGender());
-        child.setAvatar(childRequest.getAvatar());
-        child.setParent(parentOpt.get());
-
-        Child savedChild = childRepository.save(child);
-
-        String identifier = generateUniqueIdentifier();
-        ChildIdentifier childIdentifier = new ChildIdentifier(savedChild, identifier);
-        childIdentifierRepository.save(childIdentifier);
-
-        savedChild.setChildIdentifier(childIdentifier);
-
-        return convertToResponse(savedChild);
-    }
-
-
- */
 
     @Autowired
     private MedicalCardService medicalCardService;
