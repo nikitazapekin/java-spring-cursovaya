@@ -33,7 +33,7 @@ public class ChatWebSocketController {
 
             System.out.println("Message saved successfully: " + savedMessage);
 
-            // Отправляем сообщение всем подписанным на этот чат
+
             String destination = "/topic/chat/" + webSocketMessage.getChatId();
             System.out.println("Broadcasting message to: " + destination);
             messagingTemplate.convertAndSend(destination, savedMessage);

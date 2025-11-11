@@ -112,9 +112,8 @@ public class ChatService {
             dto.setLastMessageTime(lastMessage.getSentAt());
         }
 
-        // Устанавливаем информацию о участнике чата
         if ("PATIENT".equals(userRole)) {
-            // Для пациента участник - доктор
+
             dto.setParticipantId(chat.getDoctorId());
             Optional<com.example.medicalapp.entity.Doctor> doctorOpt = doctorRepository.findById(chat.getDoctorId());
             if (doctorOpt.isPresent()) {
@@ -124,7 +123,7 @@ public class ChatService {
                 dto.setAvatar(doctor.getAvatar());
             }
         } else {
-            // Для доктора участник - пациент
+
             dto.setParticipantId(chat.getPatientId());
             Optional<com.example.medicalapp.entity.Patient> patientOpt = patientRepository.findById(chat.getPatientId());
             if (patientOpt.isPresent()) {
@@ -149,4 +148,19 @@ public class ChatService {
         dto.setChatId(message.getChat().getId());
         return dto;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

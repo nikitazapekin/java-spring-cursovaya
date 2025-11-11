@@ -17,4 +17,8 @@ public interface PatientRepository extends CrudRepository<Patient, Long> {
      List<Patient> findByFirstNameContainingIgnoreCase(String firstName);
 
     List<Patient> findByLastNameContainingIgnoreCase(String lastName);
+
+    Optional<Patient> findByUserId(Long userId);
+
+
 }
