@@ -37,14 +37,21 @@ public class ChatService {
         System.out.println("=== Getting or creating chat ===");
         System.out.println("PatientId: " + patientId + ", DoctorId: " + doctorId + ", AuthorId: " + authorId);
 
-        Optional<Chat> existingChat = chatRepository.findByPatientIdAndDoctorId(patientId, doctorId);
+        // Используем метод с JOIN для поиска существующего чата
+        Optional<Chat> existingChat = chatRepository.findByPatientAndDoctorWithParticipants(patientId, doctorId);
         if (existingChat.isPresent()) {
             Long chatId = existingChat.get().getId();
             System.out.println("Existing chat found: " + chatId);
             return chatId;
         }
 
-        Chat chat = new Chat(patientId, doctorId, authorId);
+        // Если чат не найден, создаем новый
+        var patient = patientRepository.findById(patientId)
+                .orElseThrow(() -> new RuntimeException("Patient not found: " + patientId));
+        var doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new RuntimeException("Doctor not found: " + doctorId));
+
+        Chat chat = new Chat(patient, doctor, authorId);
         chat = chatRepository.save(chat);
         System.out.println("New chat created with ID: " + chat.getId());
 
@@ -56,7 +63,8 @@ public class ChatService {
         System.out.println("=== Sending message ===");
         System.out.println("ChatId: " + chatId + ", From: " + fromUser + ", To: " + toUser + ", Message: " + messageText);
 
-        Optional<Chat> chatOpt = chatRepository.findById(chatId);
+        // Используем метод с JOIN для получения чата с участниками
+        Optional<Chat> chatOpt = chatRepository.findByIdWithParticipants(chatId);
         if (chatOpt.isPresent()) {
             Chat chat = chatOpt.get();
 
@@ -72,9 +80,11 @@ public class ChatService {
 
     public List<MessageDTO> getChatHistory(Long chatId) {
         System.out.println("Getting chat history for chatId: " + chatId);
+        // Используем обычный метод для истории сообщений
         List<Message> messages = messageRepository.findByChatIdOrderBySentAtAsc(chatId);
         System.out.println("Found " + messages.size() + " messages");
 
+        // Для каждого сообщения загружаем информацию об отправителе
         return messages.stream()
                 .map(this::convertMessageToDTO)
                 .collect(Collectors.toList());
@@ -82,7 +92,8 @@ public class ChatService {
 
     public List<ChatDTO> getUserChats(Long userId) {
         System.out.println("Getting user chats for userId: " + userId);
-        List<Chat> chats = chatRepository.findByPatientId(userId);
+        // Используем метод с JOIN для получения чатов с информацией об участниках
+        List<Chat> chats = chatRepository.findByPatientIdWithParticipants(userId);
         return chats.stream()
                 .map(chat -> convertChatToDTO(chat, "PATIENT"))
                 .collect(Collectors.toList());
@@ -90,7 +101,8 @@ public class ChatService {
 
     public List<ChatDTO> getDoctorChats(Long doctorId) {
         System.out.println("Getting doctor chats for doctorId: " + doctorId);
-        List<Chat> chats = chatRepository.findByDoctorId(doctorId);
+        // Используем метод с JOIN для получения чатов с информацией об участниках
+        List<Chat> chats = chatRepository.findByDoctorIdWithParticipants(doctorId);
         return chats.stream()
                 .map(chat -> convertChatToDTO(chat, "DOCTOR"))
                 .collect(Collectors.toList());
@@ -104,7 +116,7 @@ public class ChatService {
         dto.setAuthorId(chat.getAuthorId());
         dto.setCreatedAt(chat.getCreatedAt());
 
-        // Получаем последнее сообщение для чата
+        // Получаем последнее сообщение
         List<Message> lastMessages = messageRepository.findTop1ByChatIdOrderBySentAtDesc(chat.getId());
         if (!lastMessages.isEmpty()) {
             Message lastMessage = lastMessages.get(0);
@@ -112,26 +124,17 @@ public class ChatService {
             dto.setLastMessageTime(lastMessage.getSentAt());
         }
 
+        // Заполняем информацию об участнике чата
         if ("PATIENT".equals(userRole)) {
-
-            dto.setParticipantId(chat.getDoctorId());
-            Optional<com.example.medicalapp.entity.Doctor> doctorOpt = doctorRepository.findById(chat.getDoctorId());
-            if (doctorOpt.isPresent()) {
-                com.example.medicalapp.entity.Doctor doctor = doctorOpt.get();
-                dto.setParticipantName("Доктор " + doctor.getFirstName() + " " + doctor.getLastName());
-                dto.setChatName("Чат с доктором " + doctor.getFirstName() + " " + doctor.getLastName());
-                dto.setAvatar(doctor.getAvatar());
-            }
+            dto.setParticipantId(chat.getDoctor().getId());
+            dto.setParticipantName("Доктор " + chat.getDoctor().getFirstName() + " " + chat.getDoctor().getLastName());
+            dto.setChatName("Чат с доктором " + chat.getDoctor().getFirstName() + " " + chat.getDoctor().getLastName());
+            dto.setAvatar(chat.getDoctor().getAvatar());
         } else {
-
-            dto.setParticipantId(chat.getPatientId());
-            Optional<com.example.medicalapp.entity.Patient> patientOpt = patientRepository.findById(chat.getPatientId());
-            if (patientOpt.isPresent()) {
-                com.example.medicalapp.entity.Patient patient = patientOpt.get();
-                dto.setParticipantName("Пациент " + patient.getFirstName() + " " + patient.getLastName());
-                dto.setChatName("Чат с пациентом " + patient.getFirstName() + " " + patient.getLastName());
-                dto.setAvatar(patient.getAvatar());
-            }
+            dto.setParticipantId(chat.getPatient().getId());
+            dto.setParticipantName("Пациент " + chat.getPatient().getFirstName() + " " + chat.getPatient().getLastName());
+            dto.setChatName("Чат с пациентом " + chat.getPatient().getFirstName() + " " + chat.getPatient().getLastName());
+            dto.setAvatar(chat.getPatient().getAvatar());
         }
 
         return dto;
@@ -146,21 +149,28 @@ public class ChatService {
         dto.setTime(message.getSentAt());
         dto.setIsRead(message.getIsRead());
         dto.setChatId(message.getChat().getId());
+
+        // Для получения информации об отправителе загружаем чат с участниками
+        Optional<Chat> chatOpt = chatRepository.findByIdWithParticipants(message.getChat().getId());
+        if (chatOpt.isPresent()) {
+            Chat chat = chatOpt.get();
+
+            // Определяем тип отправителя и заполняем информацию
+            if (message.getFromUser().equals(chat.getDoctor().getId())) {
+                // Отправитель - доктор
+                dto.setSenderFirstName(chat.getDoctor().getFirstName());
+                dto.setSenderLastName(chat.getDoctor().getLastName());
+                dto.setSenderAvatar(chat.getDoctor().getAvatar());
+                dto.setSenderType("DOCTOR");
+            } else if (message.getFromUser().equals(chat.getPatient().getId())) {
+                // Отправитель - пациент
+                dto.setSenderFirstName(chat.getPatient().getFirstName());
+                dto.setSenderLastName(chat.getPatient().getLastName());
+                dto.setSenderAvatar(chat.getPatient().getAvatar());
+                dto.setSenderType("PATIENT");
+            }
+        }
+
         return dto;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

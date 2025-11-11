@@ -4,7 +4,7 @@ import com.example.medicalapp.entity.User;
 import com.example.medicalapp.models.AuthRequest;
 import com.example.medicalapp.models.AuthResponse;
 import com.example.medicalapp.models.RegisterRequest;
-import com.example.medicalapp.repository.UserRepository;
+import com.example.medicalapp.repository.UserProfileRepository;
 import com.example.medicalapp.service.AuthService;
 import com.example.medicalapp.service.JwtService;
 import jakarta.servlet.http.Cookie;
@@ -29,7 +29,7 @@ public class AuthController {
 
 
     @Autowired
-    private UserRepository userRepository;
+    private UserProfileRepository userRepository;
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request,

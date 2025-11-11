@@ -10,21 +10,25 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chat_id", nullable = false)
+    private Chat chat;
+
+
     @Column(name = "from_user", nullable = false)
     private Long fromUser;
 
     @Column(name = "to_user", nullable = false)
     private Long toUser;
 
-    @Column(name = "message_text", columnDefinition = "TEXT", nullable = false)
+    @Column(name = "message_text", nullable = false, columnDefinition = "TEXT")
     private String messageText;
 
     @Column(name = "sent_at")
     private LocalDateTime sentAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chat_id", nullable = false)
-    private Chat chat;
+    @Column(name = "is_read")
+    private Boolean isRead = false;
 
     public Message() {
         this.sentAt = LocalDateTime.now();

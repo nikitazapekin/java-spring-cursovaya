@@ -9,7 +9,7 @@ import com.example.medicalapp.models.AuthResponse;
 import com.example.medicalapp.models.RegisterRequest;
 import com.example.medicalapp.repository.DoctorRepository;
 import com.example.medicalapp.repository.PatientRepository;
-import com.example.medicalapp.repository.UserRepository;
+import com.example.medicalapp.repository.UserProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +20,7 @@ import java.util.Optional;
 public class AuthService {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserProfileRepository userRepository;
 
     @Autowired
     private PatientRepository patientRepository;
