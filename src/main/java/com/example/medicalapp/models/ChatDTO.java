@@ -10,9 +10,14 @@ public class ChatDTO {
     private String avatar;
     private Long participantId;
     private String participantName;
+    private Long patientId;
+    private Long doctorId;
+    private Long authorId;
+    private LocalDateTime createdAt;
 
     public ChatDTO() {}
 
+    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -33,4 +38,16 @@ public class ChatDTO {
 
     public String getParticipantName() { return participantName; }
     public void setParticipantName(String participantName) { this.participantName = participantName; }
+
+    public Long getPatientId() { return patientId; }
+    public void setPatientId(Long patientId) { this.patientId = patientId; }
+
+    public Long getDoctorId() { return doctorId; }
+    public void setDoctorId(Long doctorId) { this.doctorId = doctorId; }
+
+    public Long getAuthorId() { return authorId; }
+    public void setAuthorId(Long authorId) { this.authorId = authorId; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }
