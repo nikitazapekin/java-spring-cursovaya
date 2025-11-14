@@ -34,10 +34,9 @@ public class ChatService {
 
     @Transactional
     public Long getOrCreateChat(Long patientId, Long doctorId, Long authorId) {
-        System.out.println("=== Getting or creating chat ===");
+
         System.out.println("PatientId: " + patientId + ", DoctorId: " + doctorId + ", AuthorId: " + authorId);
 
-        // Используем метод с JOIN для поиска существующего чата
         Optional<Chat> existingChat = chatRepository.findByPatientAndDoctorWithParticipants(patientId, doctorId);
         if (existingChat.isPresent()) {
             Long chatId = existingChat.get().getId();
@@ -45,7 +44,6 @@ public class ChatService {
             return chatId;
         }
 
-        // Если чат не найден, создаем новый
         var patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new RuntimeException("Patient not found: " + patientId));
         var doctor = doctorRepository.findById(doctorId)
@@ -60,10 +58,9 @@ public class ChatService {
 
     @Transactional
     public MessageDTO sendMessage(Long chatId, String messageText, Long fromUser, Long toUser) {
-        System.out.println("=== Sending message ===");
+
         System.out.println("ChatId: " + chatId + ", From: " + fromUser + ", To: " + toUser + ", Message: " + messageText);
 
-        // Используем метод с JOIN для получения чата с участниками
         Optional<Chat> chatOpt = chatRepository.findByIdWithParticipants(chatId);
         if (chatOpt.isPresent()) {
             Chat chat = chatOpt.get();
@@ -80,11 +77,10 @@ public class ChatService {
 
     public List<MessageDTO> getChatHistory(Long chatId) {
         System.out.println("Getting chat history for chatId: " + chatId);
-        // Используем обычный метод для истории сообщений
+
         List<Message> messages = messageRepository.findByChatIdOrderBySentAtAsc(chatId);
         System.out.println("Found " + messages.size() + " messages");
 
-        // Для каждого сообщения загружаем информацию об отправителе
         return messages.stream()
                 .map(this::convertMessageToDTO)
                 .collect(Collectors.toList());
@@ -92,7 +88,7 @@ public class ChatService {
 
     public List<ChatDTO> getUserChats(Long userId) {
         System.out.println("Getting user chats for userId: " + userId);
-        // Используем метод с JOIN для получения чатов с информацией об участниках
+
         List<Chat> chats = chatRepository.findByPatientIdWithParticipants(userId);
         return chats.stream()
                 .map(chat -> convertChatToDTO(chat, "PATIENT"))
@@ -101,7 +97,7 @@ public class ChatService {
 
     public List<ChatDTO> getDoctorChats(Long doctorId) {
         System.out.println("Getting doctor chats for doctorId: " + doctorId);
-        // Используем метод с JOIN для получения чатов с информацией об участниках
+
         List<Chat> chats = chatRepository.findByDoctorIdWithParticipants(doctorId);
         return chats.stream()
                 .map(chat -> convertChatToDTO(chat, "DOCTOR"))
@@ -116,7 +112,6 @@ public class ChatService {
         dto.setAuthorId(chat.getAuthorId());
         dto.setCreatedAt(chat.getCreatedAt());
 
-        // Получаем последнее сообщение
         List<Message> lastMessages = messageRepository.findTop1ByChatIdOrderBySentAtDesc(chat.getId());
         if (!lastMessages.isEmpty()) {
             Message lastMessage = lastMessages.get(0);
@@ -124,7 +119,6 @@ public class ChatService {
             dto.setLastMessageTime(lastMessage.getSentAt());
         }
 
-        // Заполняем информацию об участнике чата
         if ("PATIENT".equals(userRole)) {
             dto.setParticipantId(chat.getDoctor().getId());
             dto.setParticipantName("Доктор " + chat.getDoctor().getFirstName() + " " + chat.getDoctor().getLastName());
@@ -150,20 +144,18 @@ public class ChatService {
         dto.setIsRead(message.getIsRead());
         dto.setChatId(message.getChat().getId());
 
-        // Для получения информации об отправителе загружаем чат с участниками
         Optional<Chat> chatOpt = chatRepository.findByIdWithParticipants(message.getChat().getId());
         if (chatOpt.isPresent()) {
             Chat chat = chatOpt.get();
 
-            // Определяем тип отправителя и заполняем информацию
             if (message.getFromUser().equals(chat.getDoctor().getId())) {
-                // Отправитель - доктор
+
                 dto.setSenderFirstName(chat.getDoctor().getFirstName());
                 dto.setSenderLastName(chat.getDoctor().getLastName());
                 dto.setSenderAvatar(chat.getDoctor().getAvatar());
                 dto.setSenderType("DOCTOR");
             } else if (message.getFromUser().equals(chat.getPatient().getId())) {
-                // Отправитель - пациент
+
                 dto.setSenderFirstName(chat.getPatient().getFirstName());
                 dto.setSenderLastName(chat.getPatient().getLastName());
                 dto.setSenderAvatar(chat.getPatient().getAvatar());

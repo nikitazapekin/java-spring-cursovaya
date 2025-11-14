@@ -12,7 +12,6 @@ import java.util.Optional;
 @Repository
 public interface ChatRepository extends CrudRepository<Chat, Long> {
 
-    // Заменяем старые методы на новые с использованием связей
     @Query("SELECT c FROM Chat c WHERE c.patient.id = :patientId AND c.doctor.id = :doctorId")
     Optional<Chat> findByPatientIdAndDoctorId(@Param("patientId") Long patientId, @Param("doctorId") Long doctorId);
 
@@ -22,7 +21,6 @@ public interface ChatRepository extends CrudRepository<Chat, Long> {
     @Query("SELECT c FROM Chat c WHERE c.doctor.id = :doctorId")
     List<Chat> findByDoctorId(@Param("doctorId") Long doctorId);
 
-    // Новые методы с JOIN
     @Query("SELECT c FROM Chat c JOIN FETCH c.patient p JOIN FETCH c.doctor d WHERE c.id = :chatId")
     Optional<Chat> findByIdWithParticipants(@Param("chatId") Long chatId);
 

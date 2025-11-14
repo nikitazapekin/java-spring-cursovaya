@@ -58,7 +58,7 @@ public class ChatWebSocketController {
 
     @MessageMapping("/chat.startChat")
     public void startChat(@Payload WebSocketMessage webSocketMessage) {
-        System.out.println("=== Received chat start request ===");
+
         System.out.println("WebSocketMessage: " + webSocketMessage);
 
         try {

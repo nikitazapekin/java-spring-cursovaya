@@ -14,7 +14,6 @@ public interface MessageRepository extends CrudRepository<Message, Long> {
     List<Message> findByChatIdOrderBySentAtAsc(Long chatId);
     List<Message> findTop1ByChatIdOrderBySentAtDesc(Long chatId);
 
-    // Новый метод с JOIN для получения сообщений с информацией о чате и участниках
     @Query("SELECT m FROM Message m JOIN FETCH m.chat c JOIN FETCH c.patient p JOIN FETCH c.doctor d WHERE m.chat.id = :chatId ORDER BY m.sentAt ASC")
     List<Message> findByChatIdWithParticipantsOrderBySentAtAsc(@Param("chatId") Long chatId);
 }
