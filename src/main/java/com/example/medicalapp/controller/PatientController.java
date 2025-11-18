@@ -76,7 +76,7 @@ public class PatientController {
                         .body("{\"message\": \"User not authenticated\"}");
             }
 
-            // Используем метод из сервиса
+
             Patient updatedPatient = patientService.updatePatientAvatar(userEmail, avatarRequest.getAvatar());
             PatientResponse response = patientService.convertToResponse(updatedPatient);
 

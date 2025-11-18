@@ -15,19 +15,13 @@ public class CorsConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        // ОТКЛЮЧАЕМ CORS через WebMvcConfigurer - используем только CorsConfigurationSource
-        // registry.addMapping("/**")
-        //         .allowedOriginPatterns("*")
-        //         .allowedMethods("*")
-        //         .allowedHeaders("*")
-        //         .allowCredentials(true);
+
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Используем allowedOriginPatterns вместо allowedOrigins
         configuration.setAllowedOriginPatterns(List.of("*"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));

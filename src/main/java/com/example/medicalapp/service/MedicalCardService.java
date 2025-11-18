@@ -41,7 +41,7 @@ public class MedicalCardService {
             throw new RuntimeException("Child not found with id: " + childId);
         }
 
-        // Проверяем, не существует ли уже медицинская карта для этого ребенка
+
         if (medicalCardRepository.existsByChildId(childId)) {
             throw new RuntimeException("Medical card already exists for child with id: " + childId);
         }
