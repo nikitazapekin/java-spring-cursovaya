@@ -30,7 +30,6 @@ public class Patient {
 
     private String region;
 
-
     @Column(columnDefinition = "TEXT")
     private String avatar;
 
@@ -38,7 +37,6 @@ public class Patient {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-
 
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<PaymentHistory> paymentHistories;
