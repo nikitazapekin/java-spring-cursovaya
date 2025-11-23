@@ -17,10 +17,11 @@ public class UserProfileResponse {
     private String citate;
 
     // Специфичные для Doctor
+    private String middleName;
     private Double rate;
     private String status;
     private Integer experience;
-    private String[] education;
+    private String education;
     private String specialization;
     private String achievements;
     private String incrementQualification;
@@ -36,6 +37,13 @@ public class UserProfileResponse {
 
     public String getFirstName() { return firstName; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
+
+    public String getMiddleName() {
+        return middleName;
+    }
+    public void setMiddleName(String middleName) {
+        this.middleName = middleName;
+    }
 
     public String getLastName() { return lastName; }
     public void setLastName(String lastName) { this.lastName = lastName; }
@@ -70,8 +78,8 @@ public class UserProfileResponse {
     public Integer getExperience() { return experience; }
     public void setExperience(Integer experience) { this.experience = experience; }
 
-    public String[] getEducation() { return education; }
-    public void setEducation(String[] education) { this.education = education; }
+    public String getEducation() { return education; }
+    public void setEducation(String education) { this.education = education; }
 
     public String getSpecialization() { return specialization; }
     public void setSpecialization(String specialization) { this.specialization = specialization; }

@@ -28,6 +28,7 @@ public class DoctorService {
         DoctorResponse response = new DoctorResponse();
         response.setId(doctor.getId());
         response.setFirstName(doctor.getFirstName());
+        response.setMiddleName(doctor.getMiddleName());
         response.setLastName(doctor.getLastName());
         response.setRate(doctor.getRate());
         response.setStatus(doctor.getStatus());
@@ -50,7 +51,8 @@ public class DoctorService {
 
     public List<DoctorResponse> searchDoctorsByName(String searchTerm) {
         List<Doctor> doctors = doctorRepository
-                .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(searchTerm, searchTerm);
+                .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrMiddleNameContainingIgnoreCase(
+                        searchTerm, searchTerm, searchTerm);
 
         return doctors.stream()
                 .map(this::convertToResponse)
@@ -71,6 +73,12 @@ public class DoctorService {
                 .collect(Collectors.toList());
     }
 
+    public List<DoctorResponse> searchDoctorsByMiddleName(String middleName) {
+        List<Doctor> doctors = doctorRepository.findByMiddleNameContainingIgnoreCase(middleName);
+        return doctors.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
 
     public List<DoctorResponse> searchDoctorsBySpecialization(String specialization) {
         List<Doctor> doctors = (List<Doctor>) doctorRepository.findAll();

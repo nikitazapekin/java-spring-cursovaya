@@ -30,6 +30,17 @@ public class MedicalAppointment {
     @Column(name = "doctor_initials")
     private String doctorInitials;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "doctor_id")
+    private Doctor doctor;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "service_id")
+    private Service service;
+
+    @Column(name = "appointment_time")
+    private String appointmentTime;
+
     public MedicalAppointment() {}
 
     public MedicalAppointment(MedicalCard medicalCard, String appointmentName, LocalDateTime appointmentDate, String description, String appointmentType, String doctorInitials) {
@@ -61,4 +72,13 @@ public class MedicalAppointment {
 
     public String getDoctorInitials() { return doctorInitials; }
     public void setDoctorInitials(String doctorInitials) { this.doctorInitials = doctorInitials; }
+
+    public Doctor getDoctor() { return doctor; }
+    public void setDoctor(Doctor doctor) { this.doctor = doctor; }
+
+    public Service getService() { return service; }
+    public void setService(Service service) { this.service = service; }
+
+    public String getAppointmentTime() { return appointmentTime; }
+    public void setAppointmentTime(String appointmentTime) { this.appointmentTime = appointmentTime; }
 }
