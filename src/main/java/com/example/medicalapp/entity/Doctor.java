@@ -1,8 +1,10 @@
 package com.example.medicalapp.entity;
 
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "doctor")
@@ -18,6 +20,9 @@ public class Doctor {
     @Column(name = "first_name", nullable = false)
     private String firstName;
 
+    @Column(name = "middle_name")
+    private String middleName;
+
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
@@ -30,10 +35,12 @@ public class Doctor {
     @Column(columnDefinition = "INTEGER DEFAULT 0")
     private Integer experience;
 
-    @Column(columnDefinition = "TEXT[]")
-    private String[] education;
+    @Column(name = "education")
+    private String education;
 
     private String specialization;
+
+    @Column(name = "achievements")
     private String achievements;
 
     @Column(name = "increment_qualification")
@@ -43,6 +50,15 @@ public class Doctor {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "doctor_service",
+        joinColumns = @JoinColumn(name = "doctor_id"),
+        inverseJoinColumns = @JoinColumn(name = "service_id")
+    )
+    private Set<Service> services = new HashSet<>();
 
     public Doctor() {
         this.createdAt = LocalDateTime.now();
@@ -68,6 +84,9 @@ public class Doctor {
     public String getFirstName() { return firstName; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
 
+    public String getMiddleName() { return middleName; }
+    public void setMiddleName(String middleName) { this.middleName = middleName; }
+
     public String getLastName() { return lastName; }
     public void setLastName(String lastName) { this.lastName = lastName; }
 
@@ -83,8 +102,8 @@ public class Doctor {
     public Integer getExperience() { return experience; }
     public void setExperience(Integer experience) { this.experience = experience; }
 
-    public String[] getEducation() { return education; }
-    public void setEducation(String[] education) { this.education = education; }
+    public String getEducation() { return education; }
+    public void setEducation(String education) { this.education = education; }
 
     public String getSpecialization() { return specialization; }
     public void setSpecialization(String specialization) { this.specialization = specialization; }
@@ -100,4 +119,7 @@ public class Doctor {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public java.util.Set<Service> getServices() { return services; }
+    public void setServices(java.util.Set<Service> services) { this.services = services; }
 }

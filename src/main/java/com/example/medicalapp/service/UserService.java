@@ -27,7 +27,6 @@ public class UserService {
     public UserProfileResponse getUserProfileById(Long userId) {
         System.out.println("Getting user profile for ID: " + userId);
 
-        // Находим пользователя
         Optional<User> userOpt = userProfileRepository.findById(userId);
         if (userOpt.isEmpty()) {
             System.out.println("User not found with ID: " + userId);
@@ -79,6 +78,7 @@ public class UserService {
         if (doctorOpt.isPresent()) {
             Doctor doctor = doctorOpt.get();
             response.setFirstName(doctor.getFirstName());
+            response.setMiddleName(doctor.getMiddleName());
             response.setLastName(doctor.getLastName());
             response.setAvatar(doctor.getAvatar());
             response.setRate(doctor.getRate());

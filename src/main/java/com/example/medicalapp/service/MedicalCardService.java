@@ -111,13 +111,20 @@ public class MedicalCardService {
         }
 
         MedicalCard medicalCard = medicalCardOpt.get();
+        
+        LocalDateTime appointmentDate = null;
+        if (request.getAppointmentDate() != null) {
+            appointmentDate = LocalDateTime.parse(request.getAppointmentDate(), 
+                    java.time.format.DateTimeFormatter.ISO_DATE_TIME);
+        }
+        
         MedicalAppointment medicalAppointment = new MedicalAppointment(
                 medicalCard,
                 request.getAppointmentName(),
-                request.getAppointmentDate(),
+                appointmentDate,
                 request.getDescription(),
                 request.getAppointmentType(),
-                request.getDoctorInitials()
+                ""
         );
 
         MedicalAppointment savedMedicalAppointment = medicalAppointmentRepository.save(medicalAppointment);

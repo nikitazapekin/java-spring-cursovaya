@@ -22,4 +22,9 @@ public interface DoctorRepository extends CrudRepository<Doctor, Long> {
 
     Optional<Doctor> findByUserId(Long userId);
 
+    List<Doctor> findByMiddleNameContainingIgnoreCase(String middleName);
+
+    List<Doctor> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrMiddleNameContainingIgnoreCase(
+            String firstName, String lastName, String middleName);
+
 }

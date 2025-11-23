@@ -6,12 +6,13 @@ import java.time.LocalDateTime;
 public class DoctorResponse {
     private Long id;
     private String firstName;
+    private String middleName;
     private String lastName;
     private Double rate;
     private String status;
     private String citate;
     private Integer experience;
-    private String[] education;
+    private String education;
     private String specialization;
     private String achievements;
     private String incrementQualification;
@@ -22,9 +23,10 @@ public class DoctorResponse {
 
     public DoctorResponse() {}
 
-    public DoctorResponse(Long id, String firstName, String lastName, String email, String role) {
+    public DoctorResponse(Long id, String firstName, String middleName, String lastName, String email, String role) {
         this.id = id;
         this.firstName = firstName;
+        this.middleName = middleName;
         this.lastName = lastName;
         this.email = email;
         this.role = role;
@@ -35,6 +37,13 @@ public class DoctorResponse {
 
     public String getFirstName() { return firstName; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
+
+    public String getMiddleName() {
+        return middleName;
+    }
+    public void setMiddleName(String middleName) {
+        this.middleName = middleName;
+    }
 
     public String getLastName() { return lastName; }
     public void setLastName(String lastName) { this.lastName = lastName; }
@@ -51,8 +60,8 @@ public class DoctorResponse {
     public Integer getExperience() { return experience; }
     public void setExperience(Integer experience) { this.experience = experience; }
 
-    public String[] getEducation() { return education; }
-    public void setEducation(String[] education) { this.education = education; }
+    public String getEducation() { return education; }
+    public void setEducation(String education) { this.education = education; }
 
     public String getSpecialization() { return specialization; }
     public void setSpecialization(String specialization) { this.specialization = specialization; }

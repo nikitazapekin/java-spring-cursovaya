@@ -22,6 +22,9 @@ public class DoctorController {
     @Autowired
     private DoctorRepository doctorRepository;
 
+    @Autowired
+    private DoctorService doctorService;
+
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentDoctor(HttpServletRequest request) {
         System.out.println("RECEIVE ");
@@ -71,6 +74,7 @@ public class DoctorController {
         DoctorResponse response = new DoctorResponse();
         response.setId(doctor.getId());
         response.setFirstName(doctor.getFirstName());
+        response.setMiddleName(doctor.getMiddleName());
         response.setLastName(doctor.getLastName());
         response.setRate(doctor.getRate());
         response.setStatus(doctor.getStatus());
@@ -82,41 +86,39 @@ public class DoctorController {
         response.setIncrementQualification(doctor.getIncrementQualification());
         response.setAvatar(doctor.getAvatar());
         response.setCreatedAt(doctor.getCreatedAt());
-        response.setEmail(doctor.getUser().getEmail());
-        response.setRole(doctor.getUser().getRole());
+        
+        if (doctor.getUser() != null) {
+            response.setEmail(doctor.getUser().getEmail());
+            response.setRole(doctor.getUser().getRole());
+        }
 
         return response;
     }
 
-
-
-    @Autowired
-    private DoctorService doctorService;
     @GetMapping("/search")
     public ResponseEntity<?> searchDoctors(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String firstName,
             @RequestParam(required = false) String lastName,
+            @RequestParam(required = false) String middleName,
             @RequestParam(required = false) String specialization) {
 
         try {
             List<DoctorResponse> doctors;
 
             if (name != null && !name.trim().isEmpty()) {
-
                 doctors = doctorService.searchDoctorsByName(name.trim());
             } else if (firstName != null && !firstName.trim().isEmpty()) {
-
                 doctors = doctorService.searchDoctorsByFirstName(firstName.trim());
             } else if (lastName != null && !lastName.trim().isEmpty()) {
-
                 doctors = doctorService.searchDoctorsByLastName(lastName.trim());
+            } else if (middleName != null && !middleName.trim().isEmpty()) {
+                doctors = doctorService.searchDoctorsByMiddleName(middleName.trim());
             } else if (specialization != null && !specialization.trim().isEmpty()) {
-
                 doctors = doctorService.searchDoctorsBySpecialization(specialization.trim());
             } else {
                 return ResponseEntity.badRequest()
-                        .body("{\"message\": \"Please provide search parameters: name, firstName, lastName, or specialization\"}");
+                        .body("{\"message\": \"Please provide search parameters: name, firstName, lastName, middleName, or specialization\"}");
             }
 
             if (doctors.isEmpty()) {
@@ -142,8 +144,9 @@ public class DoctorController {
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("{\"message\": \"Error retrieving doctors\"}");
+                    .body("{\"message\": \"Error retrieving doctors: " + e.getMessage() + "\"}");
         }
     }
 
