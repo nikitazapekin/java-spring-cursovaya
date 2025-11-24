@@ -72,5 +72,40 @@ public class MedicalAppointmentController {
                     .body("{\"message\": \"Error deleting appointment: " + e.getMessage() + "\"}");
         }
     }
+
+    // История консультаций
+    @GetMapping("/consultations/patient/{patientId}")
+    public ResponseEntity<?> getConsultationHistory(
+            @PathVariable Long patientId,
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false, defaultValue = "date_desc") String sortBy) {
+        try {
+            List<MedicalAppointmentResponse> consultations;
+
+            if (year != null) {
+                consultations = medicalAppointmentService.getCompletedConsultationsByPatientIdAndYear(patientId, year, sortBy);
+            } else {
+                consultations = medicalAppointmentService.getCompletedConsultationsByPatientId(patientId, sortBy);
+            }
+
+            return ResponseEntity.ok(consultations);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"message\": \"Error retrieving consultation history: " + e.getMessage() + "\"}");
+        }
+    }
+
+    @GetMapping("/consultations/child/{childId}")
+    public ResponseEntity<?> getConsultationHistoryByChild(@PathVariable Long childId) {
+        try {
+            List<MedicalAppointmentResponse> consultations =
+                    medicalAppointmentService.getCompletedConsultationsByChildId(childId);
+
+            return ResponseEntity.ok(consultations);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"message\": \"Error retrieving child consultation history: " + e.getMessage() + "\"}");
+        }
+    }
 }
 

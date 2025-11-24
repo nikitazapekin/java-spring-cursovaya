@@ -109,6 +109,18 @@ public class MedicalAppointmentService {
         response.setAppointmentType(appointment.getAppointmentType());
         response.setDoctorInitials(appointment.getDoctorInitials());
 
+        response.setStatus(appointment.getStatus().name());
+        response.setCategory(appointment.getCategory());
+        response.setTitle(appointment.getTitle());
+        response.setDuration(appointment.getDuration());
+        response.setPrice(appointment.getPrice());
+        response.setCompletedAt(appointment.getCompletedAt());
+        response.setPatientName(appointment.getPatientName());
+
+        if (appointment.getMedicalCard() != null && appointment.getMedicalCard().getChild() != null) {
+            response.setChildId(appointment.getMedicalCard().getChild().getId());
+        }
+
         if (appointment.getDoctor() != null) {
             response.setDoctor(doctorService.convertToResponse(appointment.getDoctor()));
         }
@@ -124,6 +136,54 @@ public class MedicalAppointmentService {
         return findByMedicalCardId(medicalCardId).stream()
                 .map(this::convertToResponse)
                 .toList();
+    }
+
+    // История консультаций
+    public List<MedicalAppointmentResponse> getCompletedConsultationsByPatientId(Long patientId, String sortBy) {
+        var appointments = medicalAppointmentRepository.findByPatientIdAndStatus(
+                patientId, 
+                com.example.medicalapp.entity.AppointmentStatus.COMPLETED
+        );
+
+        return sortConsultations(appointments, sortBy).stream()
+                .map(this::convertToResponse)
+                .toList();
+    }
+
+    public List<MedicalAppointmentResponse> getCompletedConsultationsByPatientIdAndYear(Long patientId, Integer year, String sortBy) {
+        var appointments = medicalAppointmentRepository.findCompletedByPatientIdAndYear(patientId, year);
+
+        return sortConsultations(appointments, sortBy).stream()
+                .map(this::convertToResponse)
+                .toList();
+    }
+
+    public List<MedicalAppointmentResponse> getCompletedConsultationsByChildId(Long childId) {
+        return medicalAppointmentRepository.findCompletedByChildId(childId).stream()
+                .map(this::convertToResponse)
+                .toList();
+    }
+
+    private List<MedicalAppointment> sortConsultations(List<MedicalAppointment> appointments, String sortBy) {
+        if (sortBy == null || sortBy.isEmpty()) {
+            sortBy = "date_desc";
+        }
+
+        return switch (sortBy) {
+            case "date_asc" -> appointments.stream()
+                    .sorted((a, b) -> a.getCompletedAt().compareTo(b.getCompletedAt()))
+                    .toList();
+            case "category" -> appointments.stream()
+                    .sorted((a, b) -> {
+                        String catA = a.getCategory() != null ? a.getCategory() : "";
+                        String catB = b.getCategory() != null ? b.getCategory() : "";
+                        return catA.compareToIgnoreCase(catB);
+                    })
+                    .toList();
+            default -> appointments.stream()
+                    .sorted((a, b) -> b.getCompletedAt().compareTo(a.getCompletedAt()))
+                    .toList();
+        };
     }
 }
 
