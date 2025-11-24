@@ -27,4 +27,6 @@ public interface DoctorRepository extends CrudRepository<Doctor, Long> {
     List<Doctor> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrMiddleNameContainingIgnoreCase(
             String firstName, String lastName, String middleName);
 
+    List<Doctor> findByRateBetweenOrderByRateDesc(Double minRate, Double maxRate);
+
 }

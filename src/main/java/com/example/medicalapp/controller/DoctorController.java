@@ -150,5 +150,34 @@ public class DoctorController {
         }
     }
 
+    @GetMapping("/popular")
+    public ResponseEntity<?> getPopularDoctors() {
+        try {
+            List<DoctorResponse> doctors = doctorService.getPopularDoctors();
+
+            if (doctors.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("{\"message\": \"No popular doctors found\"}");
+            }
+
+            return ResponseEntity.ok(doctors);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"message\": \"Error retrieving popular doctors: " + e.getMessage() + "\"}");
+        }
+    }
+
+    @GetMapping("/popular/top3")
+    public ResponseEntity<?> getTop3PopularDoctors() {
+        try {
+            List<DoctorResponse> doctors = doctorService.getTop3PopularDoctors();
+
+            return ResponseEntity.ok(doctors);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"message\": \"Error retrieving top popular doctors: " + e.getMessage() + "\"}");
+        }
+    }
+
 
 }
