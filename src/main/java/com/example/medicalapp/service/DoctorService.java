@@ -110,4 +110,11 @@ public class DoctorService {
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }
+
+    public List<DoctorResponse> getDoctorsByChildId(Long childId) {
+        List<Doctor> doctors = doctorRepository.findDoctorsByChildId(childId);
+        return doctors.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
 }
