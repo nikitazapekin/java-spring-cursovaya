@@ -39,5 +39,34 @@ public class ServiceController {
                     .body("{\"message\": \"Error retrieving service: " + e.getMessage() + "\"}");
         }
     }
+
+    @GetMapping("/top3")
+    public ResponseEntity<?> getTop3Services() {
+        try {
+            List<ServiceResponse> services = serviceService.getTop3Services();
+            return ResponseEntity.ok(services);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"message\": \"Error retrieving top services: " + e.getMessage() + "\"}");
+        }
+    }
+
+    @GetMapping("/sorted")
+    public ResponseEntity<?> getSortedServices(@RequestParam(required = false, defaultValue = "title") String sortBy) {
+        try {
+            List<ServiceResponse> services;
+            
+            if ("popular".equalsIgnoreCase(sortBy)) {
+                services = serviceService.getAllServicesSortedByPopularity();
+            } else {
+                services = serviceService.getAllServicesSortedByTitle();
+            }
+            
+            return ResponseEntity.ok(services);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"message\": \"Error retrieving sorted services: " + e.getMessage() + "\"}");
+        }
+    }
 }
 

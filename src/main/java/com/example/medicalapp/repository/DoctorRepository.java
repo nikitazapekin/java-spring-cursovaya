@@ -2,7 +2,9 @@ package com.example.medicalapp.repository;
 
 
 import com.example.medicalapp.entity.Doctor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -28,5 +30,8 @@ public interface DoctorRepository extends CrudRepository<Doctor, Long> {
             String firstName, String lastName, String middleName);
 
     List<Doctor> findByRateBetweenOrderByRateDesc(Double minRate, Double maxRate);
+
+    @Query("SELECT d FROM Doctor d JOIN d.services s WHERE s.id = :serviceId")
+    List<Doctor> findDoctorsByServiceId(@Param("serviceId") Long serviceId);
 
 }

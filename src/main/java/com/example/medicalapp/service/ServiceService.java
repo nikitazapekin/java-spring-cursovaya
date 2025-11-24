@@ -44,5 +44,27 @@ public class ServiceService {
                 .map(this::convertToResponse)
                 .toList();
     }
+
+    public List<ServiceResponse> getTop3Services() {
+        return findAll().stream()
+                .limit(3)
+                .map(this::convertToResponse)
+                .toList();
+    }
+
+    public List<ServiceResponse> getAllServicesSortedByTitle() {
+        return findAll().stream()
+                .sorted((s1, s2) -> s1.getTitle().compareToIgnoreCase(s2.getTitle()))
+                .map(this::convertToResponse)
+                .toList();
+    }
+
+    public List<ServiceResponse> getAllServicesSortedByPopularity() {
+        // Сортировка по количеству врачей (популярность)
+        return findAll().stream()
+                .sorted((s1, s2) -> Integer.compare(s2.getDoctors().size(), s1.getDoctors().size()))
+                .map(this::convertToResponse)
+                .toList();
+    }
 }
 
