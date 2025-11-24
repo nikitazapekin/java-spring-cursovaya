@@ -179,5 +179,22 @@ public class DoctorController {
         }
     }
 
+    @GetMapping("/by-service/{serviceId}")
+    public ResponseEntity<?> getDoctorsByService(@PathVariable Long serviceId) {
+        try {
+            List<DoctorResponse> doctors = doctorService.getDoctorsByServiceId(serviceId);
+
+            if (doctors.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("{\"message\": \"No doctors found for this service\"}");
+            }
+
+            return ResponseEntity.ok(doctors);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"message\": \"Error retrieving doctors by service: " + e.getMessage() + "\"}");
+        }
+    }
+
 
 }

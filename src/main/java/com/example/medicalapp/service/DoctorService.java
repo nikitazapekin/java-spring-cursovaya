@@ -103,4 +103,11 @@ public class DoctorService {
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }
+
+    public List<DoctorResponse> getDoctorsByServiceId(Long serviceId) {
+        List<Doctor> doctors = doctorRepository.findDoctorsByServiceId(serviceId);
+        return doctors.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
 }
