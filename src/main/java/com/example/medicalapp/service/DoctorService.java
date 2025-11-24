@@ -88,4 +88,19 @@ public class DoctorService {
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }
+
+    public List<DoctorResponse> getPopularDoctors() {
+        List<Doctor> doctors = doctorRepository.findByRateBetweenOrderByRateDesc(4.0, 5.0);
+        return doctors.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<DoctorResponse> getTop3PopularDoctors() {
+        List<Doctor> doctors = doctorRepository.findByRateBetweenOrderByRateDesc(4.0, 5.0);
+        return doctors.stream()
+                .limit(3)
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
 }
