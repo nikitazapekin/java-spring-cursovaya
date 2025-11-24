@@ -34,4 +34,11 @@ public interface DoctorRepository extends CrudRepository<Doctor, Long> {
     @Query("SELECT d FROM Doctor d JOIN d.services s WHERE s.id = :serviceId")
     List<Doctor> findDoctorsByServiceId(@Param("serviceId") Long serviceId);
 
+    @Query("SELECT DISTINCT d FROM Doctor d " +
+           "JOIN MedicalAppointment ma ON ma.doctor.id = d.id " +
+           "JOIN ma.medicalCard mc " +
+           "WHERE mc.child.id = :childId " +
+           "AND ma.status = 'COMPLETED'")
+    List<Doctor> findDoctorsByChildId(@Param("childId") Long childId);
+
 }
