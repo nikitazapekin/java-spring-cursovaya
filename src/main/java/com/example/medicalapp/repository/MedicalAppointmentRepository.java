@@ -14,6 +14,7 @@ import java.util.List;
 @Repository
 public interface MedicalAppointmentRepository extends CrudRepository<MedicalAppointment, Long> {
     List<MedicalAppointment> findByMedicalCardId(Long medicalCardId);
+    List<MedicalAppointment> findByMedicalCardIdAndAppointmentType(Long medicalCardId, String appointmentType);
     List<MedicalAppointment> findByMedicalCardIdAndAppointmentDateBetween(
             Long medicalCardId, LocalDateTime startDate, LocalDateTime endDate);
 
@@ -45,4 +46,34 @@ public interface MedicalAppointmentRepository extends CrudRepository<MedicalAppo
            "AND ma.status = 'COMPLETED' " +
            "ORDER BY ma.completedAt DESC")
     List<MedicalAppointment> findCompletedByChildId(@Param("childId") Long childId);
+    
+    // Все записи пациента (любой статус)
+    @Query("SELECT ma FROM MedicalAppointment ma " +
+           "JOIN ma.medicalCard mc " +
+           "JOIN mc.child c " +
+           "WHERE c.parent.id = :patientId " +
+           "ORDER BY ma.appointmentDate DESC")
+    List<MedicalAppointment> findAllByPatientId(@Param("patientId") Long patientId);
+    
+    // По пациенту и году (любой статус)
+    @Query("SELECT ma FROM MedicalAppointment ma " +
+           "JOIN ma.medicalCard mc " +
+           "JOIN mc.child c " +
+           "WHERE c.parent.id = :patientId " +
+           "AND EXTRACT(YEAR FROM ma.appointmentDate) = :year " +
+           "ORDER BY ma.appointmentDate DESC")
+    List<MedicalAppointment> findByPatientIdAndYear(@Param("patientId") Long patientId, 
+                                                     @Param("year") Integer year);
+    
+    // По пациенту, году и статусу
+    @Query("SELECT ma FROM MedicalAppointment ma " +
+           "JOIN ma.medicalCard mc " +
+           "JOIN mc.child c " +
+           "WHERE c.parent.id = :patientId " +
+           "AND EXTRACT(YEAR FROM ma.appointmentDate) = :year " +
+           "AND ma.status = :status " +
+           "ORDER BY ma.appointmentDate DESC")
+    List<MedicalAppointment> findByPatientIdYearAndStatus(@Param("patientId") Long patientId, 
+                                                           @Param("year") Integer year,
+                                                           @Param("status") AppointmentStatus status);
 }
