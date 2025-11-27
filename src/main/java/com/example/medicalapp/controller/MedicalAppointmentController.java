@@ -31,6 +31,18 @@ public class MedicalAppointmentController {
         }
     }
 
+    @GetMapping("/medical-card/{medicalCardId}/analyzes")
+    public ResponseEntity<?> getAnalyzesByMedicalCardId(@PathVariable Long medicalCardId) {
+        try {
+            List<MedicalAppointmentResponse> analyzes =
+                    medicalAppointmentService.findAnalyzesByMedicalCardId(medicalCardId);
+            return ResponseEntity.ok(analyzes);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"message\": \"Error retrieving analyzes: " + e.getMessage() + "\"}");
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getAppointmentById(@PathVariable Long id) {
         try {
@@ -105,6 +117,59 @@ public class MedicalAppointmentController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("{\"message\": \"Error retrieving child consultation history: " + e.getMessage() + "\"}");
+        }
+    }
+
+    // Все записи пациента с расширенными фильтрами
+    @GetMapping("/patient/{patientId}")
+    public ResponseEntity<?> getAllAppointments(
+            @PathVariable Long patientId,
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false, defaultValue = "date_desc") String sortBy,
+            @RequestParam(required = false) String search) {
+        try {
+            List<MedicalAppointmentResponse> appointments = 
+                    medicalAppointmentService.getAllAppointmentsByPatient(patientId, year, status, sortBy, search);
+
+            return ResponseEntity.ok(appointments);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"message\": \"Error retrieving appointments: " + e.getMessage() + "\"}");
+        }
+    }
+
+    // Отмена записи
+    @PatchMapping("/{id}/cancel")
+    public ResponseEntity<?> cancelAppointment(@PathVariable Long id) {
+        try {
+            MedicalAppointment appointment = medicalAppointmentService.cancelAppointment(id);
+            MedicalAppointmentResponse response = medicalAppointmentService.convertToResponse(appointment);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("{\"message\": \"Error cancelling appointment: " + e.getMessage() + "\"}");
+        }
+    }
+
+    // Перенос записи
+    @PatchMapping("/{id}/reschedule")
+    public ResponseEntity<?> rescheduleAppointment(
+            @PathVariable Long id,
+            @RequestParam String newDate,
+            @RequestParam(required = false) String newTime) {
+        try {
+            java.time.LocalDateTime parsedDate = java.time.LocalDateTime.parse(newDate, 
+                    java.time.format.DateTimeFormatter.ISO_DATE_TIME);
+            
+            MedicalAppointment appointment = medicalAppointmentService.rescheduleAppointment(id, parsedDate, newTime);
+            MedicalAppointmentResponse response = medicalAppointmentService.convertToResponse(appointment);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("{\"message\": \"Error rescheduling appointment: " + e.getMessage() + "\"}");
         }
     }
 }
