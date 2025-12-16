@@ -97,29 +97,19 @@ public class FavouriteDrugController {
             FavouriteDrugResponse response = favouriteDrugService.convertToResponse(createdDrug);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("already in favourites")) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body("{\"message\": \"" + e.getMessage() + "\"}");
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("{\"message\": \"" + e.getMessage() + "\"}");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("{\"message\": \"Error creating favourite drug: " + e.getMessage() + "\"}");
         }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateFavouriteDrug(
-            @PathVariable Long id,
-            @RequestBody FavouriteDrugRequest drugRequest) {
-        try {
-            var updatedDrug = favouriteDrugService.updateFavouriteDrug(id, drugRequest);
-            FavouriteDrugResponse response = favouriteDrugService.convertToResponse(updatedDrug);
-
-            return ResponseEntity.ok(response);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("{\"message\": \"" + e.getMessage() + "\"}");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("{\"message\": \"Error updating favourite drug: " + e.getMessage() + "\"}");
-        }
-    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteFavouriteDrug(@PathVariable Long id) {
@@ -137,5 +127,6 @@ public class FavouriteDrugController {
         }
     }
 }
+
 
 

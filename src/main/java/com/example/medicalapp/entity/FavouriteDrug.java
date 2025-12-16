@@ -14,20 +14,9 @@ public class FavouriteDrug {
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
 
-    @Column(name = "title", nullable = false)
-    private String title;
-
-    @Column(columnDefinition = "TEXT")
-    private String description;
-
-    @Column(name = "price", nullable = false)
-    private Double price;
-
-    @Column(name = "type")
-    private String type;
-
-    @Column(name = "dosage")
-    private String dosage;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "drug_id", nullable = false)
+    private Drug drug;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -36,14 +25,10 @@ public class FavouriteDrug {
         this.createdAt = LocalDateTime.now();
     }
 
-    public FavouriteDrug(Patient patient, String title, String description, Double price, String type, String dosage) {
+    public FavouriteDrug(Patient patient, Drug drug) {
         this();
         this.patient = patient;
-        this.title = title;
-        this.description = description;
-        this.price = price;
-        this.type = type;
-        this.dosage = dosage;
+        this.drug = drug;
     }
 
     public Long getId() { return id; }
@@ -52,23 +37,12 @@ public class FavouriteDrug {
     public Patient getPatient() { return patient; }
     public void setPatient(Patient patient) { this.patient = patient; }
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
-
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-
-    public Double getPrice() { return price; }
-    public void setPrice(Double price) { this.price = price; }
-
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
-
-    public String getDosage() { return dosage; }
-    public void setDosage(String dosage) { this.dosage = dosage; }
+    public Drug getDrug() { return drug; }
+    public void setDrug(Drug drug) { this.drug = drug; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }
+
 
 

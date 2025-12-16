@@ -2,10 +2,12 @@ package com.example.medicalapp.service;
 
 import com.example.medicalapp.entity.FavouriteDrug;
 import com.example.medicalapp.entity.Patient;
+import com.example.medicalapp.entity.Drug;
 import com.example.medicalapp.models.FavouriteDrugRequest;
 import com.example.medicalapp.models.FavouriteDrugResponse;
 import com.example.medicalapp.repository.FavouriteDrugRepository;
 import com.example.medicalapp.repository.PatientRepository;
+import com.example.medicalapp.repository.DrugRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,9 @@ public class FavouriteDrugService {
 
     @Autowired
     private PatientRepository patientRepository;
+
+    @Autowired
+    private DrugRepository drugRepository;
 
     public List<FavouriteDrug> findAll() {
         return (List<FavouriteDrug>) favouriteDrugRepository.findAll();
@@ -52,15 +57,22 @@ public class FavouriteDrugService {
     public FavouriteDrugResponse convertToResponse(FavouriteDrug favouriteDrug) {
         FavouriteDrugResponse response = new FavouriteDrugResponse();
         response.setId(favouriteDrug.getId());
-        response.setTitle(favouriteDrug.getTitle());
-        response.setDescription(favouriteDrug.getDescription());
-        response.setPrice(favouriteDrug.getPrice());
-        response.setType(favouriteDrug.getType());
-        response.setDosage(favouriteDrug.getDosage());
         response.setCreatedAt(favouriteDrug.getCreatedAt());
 
         if (favouriteDrug.getPatient() != null) {
             response.setPatientId(favouriteDrug.getPatient().getId());
+        }
+
+        if (favouriteDrug.getDrug() != null) {
+            Drug drug = favouriteDrug.getDrug();
+            response.setDrugId(drug.getId());
+            response.setTitle(drug.getTitle());
+            response.setShortDescription(drug.getShortDescription());
+            response.setDescription(drug.getDescription());
+            response.setPrice(drug.getPrice());
+            response.setType(drug.getType());
+            response.setDosage(drug.getDosage());
+            response.setImagePath(drug.getImagePath());
         }
 
         return response;
@@ -84,43 +96,27 @@ public class FavouriteDrugService {
             throw new RuntimeException("Patient not found with id: " + patientId);
         }
 
+        if (request.getDrugId() == null) {
+            throw new RuntimeException("Drug ID is required");
+        }
+
+        Optional<Drug> drugOpt = drugRepository.findById(request.getDrugId());
+        if (drugOpt.isEmpty()) {
+            throw new RuntimeException("Drug not found with id: " + request.getDrugId());
+        }
+
+        // Проверяем, не добавлено ли уже это лекарство в избранное
+        if (favouriteDrugRepository.existsByPatientIdAndDrugId(patientId, request.getDrugId())) {
+            throw new RuntimeException("Drug is already in favourites");
+        }
+
         FavouriteDrug favouriteDrug = new FavouriteDrug();
         favouriteDrug.setPatient(patientOpt.get());
-        favouriteDrug.setTitle(request.getTitle());
-        favouriteDrug.setDescription(request.getDescription());
-        favouriteDrug.setPrice(request.getPrice());
-        favouriteDrug.setType(request.getType());
-        favouriteDrug.setDosage(request.getDosage());
-
-        return favouriteDrugRepository.save(favouriteDrug);
-    }
-
-    public FavouriteDrug updateFavouriteDrug(Long id, FavouriteDrugRequest request) {
-        Optional<FavouriteDrug> drugOpt = favouriteDrugRepository.findById(id);
-        if (drugOpt.isEmpty()) {
-            throw new RuntimeException("Favourite drug not found with id: " + id);
-        }
-
-        FavouriteDrug favouriteDrug = drugOpt.get();
-
-        if (request.getTitle() != null) {
-            favouriteDrug.setTitle(request.getTitle());
-        }
-        if (request.getDescription() != null) {
-            favouriteDrug.setDescription(request.getDescription());
-        }
-        if (request.getPrice() != null) {
-            favouriteDrug.setPrice(request.getPrice());
-        }
-        if (request.getType() != null) {
-            favouriteDrug.setType(request.getType());
-        }
-        if (request.getDosage() != null) {
-            favouriteDrug.setDosage(request.getDosage());
-        }
+        favouriteDrug.setDrug(drugOpt.get());
 
         return favouriteDrugRepository.save(favouriteDrug);
     }
 }
+
 
 
