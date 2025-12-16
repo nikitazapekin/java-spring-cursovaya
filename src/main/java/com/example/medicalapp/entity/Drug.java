@@ -1,27 +1,56 @@
-package com.example.medicalapp.models;
+package com.example.medicalapp.entity;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-public class FavouriteDrugResponse {
+@Entity
+@Table(name = "drugs")
+public class Drug {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long drugId;
+
+    @Column(name = "title", nullable = false)
     private String title;
+
+    @Column(name = "short_description", length = 500)
     private String shortDescription;
+
+    @Column(columnDefinition = "TEXT")
     private String description;
+
+    @Column(name = "price", nullable = false)
     private Double price;
+
+    @Column(name = "type")
     private String type;
+
+    @Column(name = "dosage")
     private String dosage;
+
+    @Column(name = "image_path", length = 500)
     private String imagePath;
-    private Long patientId;
+
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    public FavouriteDrugResponse() {}
+    public Drug() {
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public Drug(String title, String shortDescription, String description, Double price, String type, String dosage, String imagePath) {
+        this();
+        this.title = title;
+        this.shortDescription = shortDescription;
+        this.description = description;
+        this.price = price;
+        this.type = type;
+        this.dosage = dosage;
+        this.imagePath = imagePath;
+    }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
-
-    public Long getDrugId() { return drugId; }
-    public void setDrugId(Long drugId) { this.drugId = drugId; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
@@ -44,12 +73,7 @@ public class FavouriteDrugResponse {
     public String getImagePath() { return imagePath; }
     public void setImagePath(String imagePath) { this.imagePath = imagePath; }
 
-    public Long getPatientId() { return patientId; }
-    public void setPatientId(Long patientId) { this.patientId = patientId; }
-
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }
-
-
 

@@ -1,10 +1,6 @@
 package com.example.medicalapp.models;
 
-import java.time.LocalDateTime;
-
-public class FavouriteDrugResponse {
-    private Long id;
-    private Long drugId;
+public class DrugRequest {
     private String title;
     private String shortDescription;
     private String description;
@@ -12,16 +8,8 @@ public class FavouriteDrugResponse {
     private String type;
     private String dosage;
     private String imagePath;
-    private Long patientId;
-    private LocalDateTime createdAt;
 
-    public FavouriteDrugResponse() {}
-
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public Long getDrugId() { return drugId; }
-    public void setDrugId(Long drugId) { this.drugId = drugId; }
+    public DrugRequest() {}
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
@@ -43,13 +31,5 @@ public class FavouriteDrugResponse {
 
     public String getImagePath() { return imagePath; }
     public void setImagePath(String imagePath) { this.imagePath = imagePath; }
-
-    public Long getPatientId() { return patientId; }
-    public void setPatientId(Long patientId) { this.patientId = patientId; }
-
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }
-
-
 

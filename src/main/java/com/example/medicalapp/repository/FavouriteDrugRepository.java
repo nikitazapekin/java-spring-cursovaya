@@ -12,6 +12,9 @@ public interface FavouriteDrugRepository extends CrudRepository<FavouriteDrug, L
     List<FavouriteDrug> findByPatientId(Long patientId);
     Optional<FavouriteDrug> findByIdAndPatientId(Long id, Long patientId);
     boolean existsByPatientId(Long patientId);
+    Optional<FavouriteDrug> findByPatientIdAndDrugId(Long patientId, Long drugId);
+    boolean existsByPatientIdAndDrugId(Long patientId, Long drugId);
 }
+
 
 
