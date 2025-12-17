@@ -24,6 +24,10 @@ public class DoctorService {
         return doctorRepository.findByUserEmail(email);
     }
 
+    public Doctor save(Doctor doctor) {
+        return doctorRepository.save(doctor);
+    }
+
     public DoctorResponse convertToResponse(Doctor doctor) {
         DoctorResponse response = new DoctorResponse();
         response.setId(doctor.getId());

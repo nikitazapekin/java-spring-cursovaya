@@ -50,6 +50,7 @@ public class AuthService {
 
         if ("DOCTOR".equalsIgnoreCase(user.getRole())) {
             Doctor doctor = new Doctor(user, request.getFirstName(), request.getLastName());
+            doctor.setAvatar("doctorDefault.png"); // Устанавливаем дефолтный аватар для врача
             doctorRepository.save(doctor);
         } else {
             Patient patient = new Patient(user, request.getFirstName(), request.getLastName(), request.getPhoneNumber());

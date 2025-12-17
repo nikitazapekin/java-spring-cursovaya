@@ -140,6 +140,12 @@ public class ChildService {
         response.setParentId(child.getParent().getId());
         response.setCreatedAt(child.getCreatedAt());
         response.setUpdatedAt(child.getUpdatedAt());
+        
+        // Добавляем clinic информацию
+        if (child.getClinic() != null) {
+            response.setClinicId(child.getClinic().getId());
+        }
+        response.setClinicRegistrationDate(child.getClinicRegistrationDate());
 
         if (child.getChildIdentifier() != null) {
             response.setIdentifier(child.getChildIdentifier().getIdentifier());
