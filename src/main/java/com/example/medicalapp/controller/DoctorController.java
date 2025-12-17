@@ -3,9 +3,14 @@ package com.example.medicalapp.controller;
 
 
 import com.example.medicalapp.entity.Doctor;
+import com.example.medicalapp.entity.User;
 import com.example.medicalapp.models.DoctorResponse;
+import com.example.medicalapp.models.DoctorUpdateRequest;
+import com.example.medicalapp.models.MedicalAppointmentResponse;
 import com.example.medicalapp.repository.DoctorRepository;
+import com.example.medicalapp.repository.UserProfileRepository;
 import com.example.medicalapp.service.DoctorService;
+import com.example.medicalapp.service.MedicalAppointmentService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,28 +30,73 @@ public class DoctorController {
     @Autowired
     private DoctorService doctorService;
 
+    @Autowired
+    private UserProfileRepository userRepository;
+    
+    @Autowired
+    private MedicalAppointmentService medicalAppointmentService;
+
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentDoctor(HttpServletRequest request) {
-        System.out.println("RECEIVE ");
+        System.out.println("=== GET CURRENT DOCTOR ===");
         String userEmail = (String) request.getAttribute("userEmail");
-        System.out.println("email ");
-        System.out.println(userEmail);
+        System.out.println("User email from request: " + userEmail);
+        
         try {
+            if (userEmail == null || userEmail.isEmpty()) {
+                System.out.println("User email is null or empty");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("{\"message\": \"User not authenticated\"}");
+            }
 
-            Optional<Doctor> doctorOpt = doctorRepository.findByUserEmail(userEmail);
+            // Сначала находим пользователя по email
+            Optional<User> userOpt = userRepository.findByEmail(userEmail);
+            if (userOpt.isEmpty()) {
+                System.out.println("User not found with email: " + userEmail);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("{\"message\": \"User not found with email: " + userEmail + "\"}");
+            }
+
+            User user = userOpt.get();
+            System.out.println("User found: ID=" + user.getId() + ", Email=" + user.getEmail() + ", Role=" + user.getRole());
+
+            // Теперь находим врача по user_id
+            Optional<Doctor> doctorOpt = doctorRepository.findByUserId(user.getId());
+            System.out.println("Doctor found via user_id: " + doctorOpt.isPresent());
 
             if (doctorOpt.isEmpty()) {
+                System.out.println("Doctor profile not found for email: " + userEmail);
+                // Проверяем, существует ли пользователь с таким email
+                System.out.println("Checking if user exists with email: " + userEmail);
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("{\"message\": \"Doctor profile not found\"}");
+                        .body("{\"message\": \"Doctor profile not found for email: " + userEmail + "\"}");
             }
 
             Doctor doctor = doctorOpt.get();
+            System.out.println("Doctor found: " + doctor.getFirstName() + " " + doctor.getLastName());
+            System.out.println("Doctor ID: " + doctor.getId());
+            System.out.println("Doctor user_id: " + (doctor.getUser() != null ? doctor.getUser().getId() : "null"));
+            System.out.println("Doctor user email: " + (doctor.getUser() != null ? doctor.getUser().getEmail() : "null"));
+            
+            try {
             DoctorResponse response = mapToDoctorResponse(doctor);
+                System.out.println("Response created successfully");
+                System.out.println("Response ID: " + response.getId());
+                System.out.println("Response firstName: " + response.getFirstName());
+                System.out.println("Response email: " + response.getEmail());
 
             return ResponseEntity.ok(response);
+            } catch (Exception mappingException) {
+                System.out.println("ERROR mapping doctor to response: " + mappingException.getMessage());
+                mappingException.printStackTrace();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("{\"message\": \"Error mapping doctor data: " + mappingException.getMessage() + "\"}");
+            }
         } catch (Exception e) {
+            System.out.println("ERROR retrieving doctor data: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("{\"message\": \"Error retrieving doctor data\"}");
+                    .body("{\"message\": \"Error retrieving doctor data: " + e.getMessage() + "\"}");
         }
     }
 
@@ -71,15 +121,19 @@ public class DoctorController {
     }
 
     private DoctorResponse mapToDoctorResponse(Doctor doctor) {
+        if (doctor == null) {
+            throw new IllegalArgumentException("Doctor cannot be null");
+        }
+        
         DoctorResponse response = new DoctorResponse();
         response.setId(doctor.getId());
-        response.setFirstName(doctor.getFirstName());
+        response.setFirstName(doctor.getFirstName() != null ? doctor.getFirstName() : "");
         response.setMiddleName(doctor.getMiddleName());
-        response.setLastName(doctor.getLastName());
-        response.setRate(doctor.getRate());
+        response.setLastName(doctor.getLastName() != null ? doctor.getLastName() : "");
+        response.setRate(doctor.getRate() != null ? doctor.getRate() : 0.0);
         response.setStatus(doctor.getStatus());
         response.setCitate(doctor.getCitate());
-        response.setExperience(doctor.getExperience());
+        response.setExperience(doctor.getExperience() != null ? doctor.getExperience() : 0);
         response.setEducation(doctor.getEducation());
         response.setSpecialization(doctor.getSpecialization());
         response.setAchievements(doctor.getAchievements());
@@ -88,8 +142,12 @@ public class DoctorController {
         response.setCreatedAt(doctor.getCreatedAt());
         
         if (doctor.getUser() != null) {
-            response.setEmail(doctor.getUser().getEmail());
-            response.setRole(doctor.getUser().getRole());
+            response.setEmail(doctor.getUser().getEmail() != null ? doctor.getUser().getEmail() : "");
+            response.setRole(doctor.getUser().getRole() != null ? doctor.getUser().getRole() : "");
+        } else {
+            System.out.println("WARNING: Doctor user is null for doctor ID: " + doctor.getId());
+            response.setEmail("");
+            response.setRole("");
         }
 
         return response;
@@ -213,5 +271,175 @@ public class DoctorController {
         }
     }
 
+    @PutMapping("/me")
+    public ResponseEntity<?> updateCurrentDoctor(
+            HttpServletRequest request,
+            @RequestBody DoctorUpdateRequest updateRequest) {
+        try {
+            String userEmail = (String) request.getAttribute("userEmail");
+            System.out.println("Updating doctor profile for: " + userEmail);
+
+            if (userEmail == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("{\"message\": \"User not authenticated\"}");
+            }
+
+            // Находим пользователя
+            Optional<User> userOpt = userRepository.findByEmail(userEmail);
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("{\"message\": \"User not found\"}");
+            }
+
+            User user = userOpt.get();
+            
+            // Находим врача
+            Optional<Doctor> doctorOpt = doctorRepository.findByUserId(user.getId());
+            if (doctorOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("{\"message\": \"Doctor profile not found\"}");
+            }
+
+            Doctor doctor = doctorOpt.get();
+
+            // Обновляем поля
+            if (updateRequest.getFirstName() != null) {
+                doctor.setFirstName(updateRequest.getFirstName());
+            }
+            if (updateRequest.getMiddleName() != null) {
+                doctor.setMiddleName(updateRequest.getMiddleName());
+            }
+            if (updateRequest.getLastName() != null) {
+                doctor.setLastName(updateRequest.getLastName());
+            }
+            if (updateRequest.getSpecialization() != null) {
+                doctor.setSpecialization(updateRequest.getSpecialization());
+            }
+            if (updateRequest.getEducation() != null) {
+                doctor.setEducation(updateRequest.getEducation());
+            }
+            if (updateRequest.getIncrementQualification() != null) {
+                doctor.setIncrementQualification(updateRequest.getIncrementQualification());
+            }
+            if (updateRequest.getExperience() != null) {
+                doctor.setExperience(updateRequest.getExperience());
+            }
+            if (updateRequest.getAchievements() != null) {
+                doctor.setAchievements(updateRequest.getAchievements());
+            }
+            if (updateRequest.getStatus() != null) {
+                doctor.setStatus(updateRequest.getStatus());
+            }
+            if (updateRequest.getCitate() != null) {
+                doctor.setCitate(updateRequest.getCitate());
+            }
+            if (updateRequest.getEmail() != null && !updateRequest.getEmail().equals(user.getEmail())) {
+                // Проверяем, не занят ли email другим пользователем
+                if (userRepository.existsByEmail(updateRequest.getEmail())) {
+                    return ResponseEntity.status(HttpStatus.CONFLICT)
+                            .body("{\"message\": \"Email already exists\"}");
+                }
+                user.setEmail(updateRequest.getEmail());
+                userRepository.save(user);
+            }
+
+            Doctor updatedDoctor = doctorRepository.save(doctor);
+            DoctorResponse response = mapToDoctorResponse(updatedDoctor);
+
+            System.out.println("Doctor profile updated successfully: " + response.getFirstName() + " " + response.getLastName());
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            System.out.println("Error updating doctor profile: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"message\": \"Error updating doctor profile: " + e.getMessage() + "\"}");
+        }
+    }
+    
+    @GetMapping("/appointments/today")
+    public ResponseEntity<?> getTodayAppointments(HttpServletRequest request) {
+        System.out.println("=== GET TODAY APPOINTMENTS ===");
+        String userEmail = (String) request.getAttribute("userEmail");
+        System.out.println("User email from request: " + userEmail);
+        
+        try {
+            if (userEmail == null || userEmail.isEmpty()) {
+                System.out.println("User email is null or empty");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("{\"message\": \"User not authenticated\"}");
+            }
+
+            Optional<User> userOpt = userRepository.findByEmail(userEmail);
+            if (userOpt.isEmpty()) {
+                System.out.println("User not found with email: " + userEmail);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("{\"message\": \"User not found\"}");
+            }
+
+            User user = userOpt.get();
+            Optional<Doctor> doctorOpt = doctorRepository.findByUserId(user.getId());
+            
+            if (doctorOpt.isEmpty()) {
+                System.out.println("Doctor profile not found for email: " + userEmail);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("{\"message\": \"Doctor profile not found\"}");
+            }
+
+            Doctor doctor = doctorOpt.get();
+            System.out.println("Fetching today appointments for doctor ID: " + doctor.getId());
+            
+            List<MedicalAppointmentResponse> appointments = 
+                    medicalAppointmentService.getTodayAppointmentsByDoctorId(doctor.getId());
+            
+            System.out.println("Found " + appointments.size() + " appointments for today");
+            return ResponseEntity.ok(appointments);
+            
+        } catch (Exception e) {
+            System.out.println("ERROR retrieving today appointments: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"message\": \"Error retrieving appointments: " + e.getMessage() + "\"}");
+        }
+    }
+    
+    @GetMapping("/appointments")
+    public ResponseEntity<?> getAllAppointments(HttpServletRequest request) {
+        System.out.println("=== GET ALL DOCTOR APPOINTMENTS ===");
+        String userEmail = (String) request.getAttribute("userEmail");
+        
+        try {
+            if (userEmail == null || userEmail.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("{\"message\": \"User not authenticated\"}");
+            }
+
+            Optional<User> userOpt = userRepository.findByEmail(userEmail);
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("{\"message\": \"User not found\"}");
+            }
+
+            User user = userOpt.get();
+            Optional<Doctor> doctorOpt = doctorRepository.findByUserId(user.getId());
+            
+            if (doctorOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("{\"message\": \"Doctor profile not found\"}");
+            }
+
+            Doctor doctor = doctorOpt.get();
+            List<MedicalAppointmentResponse> appointments = 
+                    medicalAppointmentService.getAllAppointmentsByDoctorId(doctor.getId());
+            
+            return ResponseEntity.ok(appointments);
+            
+        } catch (Exception e) {
+            System.out.println("ERROR retrieving appointments: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"message\": \"Error retrieving appointments: " + e.getMessage() + "\"}");
+        }
+    }
 
 }

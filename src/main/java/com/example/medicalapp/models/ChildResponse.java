@@ -1,6 +1,7 @@
 package com.example.medicalapp.models;
 
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class ChildResponse {
@@ -11,6 +12,8 @@ public class ChildResponse {
     private String gender;
     private Long parentId;
     private String identifier;
+    private Long clinicId;
+    private LocalDate clinicRegistrationDate;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -40,4 +43,10 @@ public class ChildResponse {
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public Long getClinicId() { return clinicId; }
+    public void setClinicId(Long clinicId) { this.clinicId = clinicId; }
+
+    public LocalDate getClinicRegistrationDate() { return clinicRegistrationDate; }
+    public void setClinicRegistrationDate(LocalDate clinicRegistrationDate) { this.clinicRegistrationDate = clinicRegistrationDate; }
 }

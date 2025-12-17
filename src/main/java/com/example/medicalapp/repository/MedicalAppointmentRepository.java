@@ -76,4 +76,19 @@ public interface MedicalAppointmentRepository extends CrudRepository<MedicalAppo
     List<MedicalAppointment> findByPatientIdYearAndStatus(@Param("patientId") Long patientId, 
                                                            @Param("year") Integer year,
                                                            @Param("status") AppointmentStatus status);
+    
+    // Записи врача на сегодня
+    @Query(value = "SELECT * FROM medical_appointments ma " +
+           "WHERE ma.doctor_id = :doctorId " +
+           "AND DATE(ma.appointment_date) = CURRENT_DATE " +
+           "AND ma.status = 'SCHEDULED' " +
+           "ORDER BY ma.appointment_date ASC", 
+           nativeQuery = true)
+    List<MedicalAppointment> findTodayAppointmentsByDoctorId(@Param("doctorId") Long doctorId);
+    
+    // Все записи врача с фильтрами
+    @Query("SELECT ma FROM MedicalAppointment ma " +
+           "WHERE ma.doctor.id = :doctorId " +
+           "ORDER BY ma.appointmentDate DESC")
+    List<MedicalAppointment> findAllByDoctorId(@Param("doctorId") Long doctorId);
 }

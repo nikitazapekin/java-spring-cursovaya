@@ -112,7 +112,15 @@ public class MedicalAppointmentService {
         response.setDuration(appointment.getDuration());
         response.setPrice(appointment.getPrice());
         response.setCompletedAt(appointment.getCompletedAt());
-        response.setPatientName(appointment.getPatientName());
+        
+        // Если patientName не задано, берем из Child
+        String patientName = appointment.getPatientName();
+        if ((patientName == null || patientName.isEmpty()) && 
+            appointment.getMedicalCard() != null && 
+            appointment.getMedicalCard().getChild() != null) {
+            patientName = appointment.getMedicalCard().getChild().getName();
+        }
+        response.setPatientName(patientName);
 
         if (appointment.getMedicalCard() != null && appointment.getMedicalCard().getChild() != null) {
             response.setChildId(appointment.getMedicalCard().getChild().getId());
@@ -293,6 +301,20 @@ public class MedicalAppointmentService {
         }
         
         return medicalAppointmentRepository.save(appointment);
+    }
+    
+    // Записи врача на сегодня
+    public List<MedicalAppointmentResponse> getTodayAppointmentsByDoctorId(Long doctorId) {
+        return medicalAppointmentRepository.findTodayAppointmentsByDoctorId(doctorId).stream()
+                .map(this::convertToResponse)
+                .toList();
+    }
+    
+    // Все записи врача
+    public List<MedicalAppointmentResponse> getAllAppointmentsByDoctorId(Long doctorId) {
+        return medicalAppointmentRepository.findAllByDoctorId(doctorId).stream()
+                .map(this::convertToResponse)
+                .toList();
     }
 }
 
