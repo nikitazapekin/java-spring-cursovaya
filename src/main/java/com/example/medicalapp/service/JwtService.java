@@ -16,10 +16,10 @@ public class JwtService {
     @Value("${jwt.secret:defaultSecretKeyForDevelopment123!}")
     private String jwtSecret;
 
-    @Value("${jwt.access.expiration:30000000000}")
+    @Value("${jwt.access.expiration:30000}")
     private Long accessExpiration;
 
-    @Value("${jwt.refresh.expiration:600000000000}")
+    @Value("${jwt.refresh.expiration:60000}")
     private Long refreshExpiration;
 
     public String generateAccessToken(String email, String role, String userType) {

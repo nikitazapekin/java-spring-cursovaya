@@ -21,6 +21,7 @@ public class AdviceController {
     @GetMapping
     public ResponseEntity<?> getAllAdvice() {
         try {
+
             List<AdviceResponse> adviceList = adviceService.findAllAdviceResponses();
             return ResponseEntity.ok(adviceList);
         } catch (Exception e) {

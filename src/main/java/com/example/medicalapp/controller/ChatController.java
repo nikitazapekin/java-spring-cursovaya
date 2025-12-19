@@ -32,7 +32,7 @@ public class ChatController {
             ) {
 
         System.out.println("GOOOOOOOOOOOOD");
-        System.out.println("то доктор?");
+        System.out.println("то доктор");
         System.out.println(isDoctor );
         System.out.println("пациент");
         System.out.println(patientId );
