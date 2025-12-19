@@ -153,7 +153,7 @@ public class MedicalCardService {
     }
 
 
-    public List<DiseaseHistoryResponse> getDiseaseHistoriesByDate(Long medicalCardId, String dateString) {
+    /*  public List<DiseaseHistoryResponse> getDiseaseHistoriesByDate(Long medicalCardId, String dateString) {
         LocalDate date = parseDate(dateString);
 
 
@@ -165,6 +165,37 @@ public class MedicalCardService {
                 .map(this::convertToDiseaseHistoryResponse)
                 .collect(Collectors.toList());
     }
+
+     */
+
+    public List<DiseaseHistoryResponse> getDiseaseHistoriesByDate(Long medicalCardId, String dateString) {
+        LocalDate date = parseDate(dateString);
+        System.out.println("DATEEEEEEEEEEEEEEEEEEEEE");
+System.out.println(date);
+        List<DiseaseHistory> diseaseHistories = diseaseHistoryRepository
+                .findByMedicalCardIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+                        medicalCardId, date, date);
+
+        return diseaseHistories.stream()
+                .map(this::convertToDiseaseHistoryResponse)
+                .collect(Collectors.toList());
+    }
+
+
+    private LocalDate parseDate(String dateString) {
+        try {
+
+            try {
+                return LocalDate.parse(dateString);
+            } catch (Exception e) {
+
+                return LocalDate.parse(dateString, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid date format. Expected formats: yyyy-MM-dd or dd.MM.yyyy");
+        }
+    }
+
 
     public List<MedicalTestResponse> getMedicalTestsByDate(Long medicalCardId, String dateString) {
         LocalDate date = parseDate(dateString);
@@ -216,13 +247,7 @@ public class MedicalCardService {
                 .collect(Collectors.toList());
     }
 
-    private LocalDate parseDate(String dateString) {
-        try {
-            return LocalDate.parse(dateString, dateFormatter);
-        } catch (Exception e) {
-            throw new RuntimeException("Invalid date format. Expected format: dd.MM.yyyy");
-        }
-    }
+
 
     private MedicalCardResponse convertToResponse(MedicalCard medicalCard) {
         MedicalCardResponse response = new MedicalCardResponse();

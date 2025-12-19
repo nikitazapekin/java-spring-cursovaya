@@ -123,6 +123,11 @@ public class MedicalCardController {
     public ResponseEntity<?> getDiseaseHistoriesByDate(
             @PathVariable Long medicalCardId,
             @RequestParam String date) {
+
+        System.out.println("DATAAAAA");
+
+
+        System.out.println(date);
         try {
             List<DiseaseHistoryResponse> diseaseHistories =
                     medicalCardService.getDiseaseHistoriesByDate(medicalCardId, date);

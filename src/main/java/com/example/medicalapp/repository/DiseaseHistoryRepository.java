@@ -13,6 +13,11 @@ public interface DiseaseHistoryRepository extends CrudRepository<DiseaseHistory,
     List<DiseaseHistory> findByMedicalCardId(Long medicalCardId);
     List<DiseaseHistory> findByMedicalCardIdAndStartDate(Long medicalCardId, LocalDate date);
     List<DiseaseHistory> findByMedicalCardIdAndEndDate(Long medicalCardId, LocalDate date);
+
+    //List<DiseaseHistory> findByMedicalCardIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+   //         Long medicalCardId, LocalDate endDate, LocalDate startDate);
+
+
     List<DiseaseHistory> findByMedicalCardIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
-            Long medicalCardId, LocalDate endDate, LocalDate startDate);
+            Long medicalCardId, LocalDate date1, LocalDate date);
 }
