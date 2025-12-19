@@ -38,23 +38,14 @@ public class ChatController {
         System.out.println(patientId );
         Long id = isDoctor  ?  doctorService.getDoctorIdByUserId(doctorId) : doctorId;
         System.out.println("доктор");
-      //  System.out.println(doctorId );
+
         System.out.println(id );
         System.out.println("автор");
         System.out.println(authorId );
 
         try {
 
-            //PatientId: 19, DoctorId: 20, AuthorId: 20
-        //    Long chatId = chatService.getOrCreateChat(patientId, doctorId, authorId);
-            /*
-Long doc = 13L;
-Long pat = 19L;
-            Long chatId = chatService.getOrCreateChat(pat, doc, authorId);
-*/
-         /*   Long id =  doctorService.getDoctorIdByUserId(doctorId);
-            Long chatId = chatService.getOrCreateChat(patientId, id, authorId); */
-            //PatientId: 26, DoctorId: 25, AuthorId: 25
+
             Long chatId = chatService.getOrCreateChat(patientId, id, authorId);
             System.out.println("GOOOOOOOOOOOOD");
             System.out.println(patientId );
@@ -109,5 +100,3 @@ Long pat = 19L;
     }
 }
 
-
-//getDoctorIdByUserId

@@ -37,7 +37,7 @@ public class JwtAuthMiddleware implements HandlerInterceptor {
 
         if (!authService.validateAccessToken(token)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"message\": \"Invalid or expired access token\"}");
+            response.getWriter().write("{message: Invalid or expired access token}");
             return false;
         }
 

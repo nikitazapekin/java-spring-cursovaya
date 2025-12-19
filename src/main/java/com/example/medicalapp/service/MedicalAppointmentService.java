@@ -62,7 +62,6 @@ public class MedicalAppointmentService {
                     ", Type: " + appointment.getAppointmentType());
         }
 
-        // Преобразуем в response
         return analyzes.stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
@@ -72,20 +71,19 @@ public class MedicalAppointmentService {
 
 
     public List<MedicalAppointmentResponse> findAnalyzesByMedicalCardIdAndDate(Long medicalCardId, String dateString) {
-        System.out.println("=== DEBUG findAnalyzesByMedicalCardIdAndDate ===");
+
         System.out.println("MedicalCardId: " + medicalCardId);
         System.out.println("Date string: '" + dateString + "'");
 
         LocalDate date = parseDate(dateString);
         System.out.println("Parsed date: " + date);
 
-        // Получаем все анализы для этой медицинской карты
         List<MedicalAppointment> allAnalyzes = medicalAppointmentRepository
                 .findByMedicalCardIdAndAppointmentType(medicalCardId, "Анализы");
 
         System.out.println("Total analyzes found for medical card: " + allAnalyzes.size());
 
-        // Фильтруем по дате appointmentDate
+
         List<MedicalAppointment> filteredAnalyzes = allAnalyzes.stream()
                 .filter(appointment -> {
                     if (appointment.getAppointmentDate() == null) {
@@ -93,32 +91,27 @@ public class MedicalAppointmentService {
                         return false;
                     }
 
-                    // Преобразуем LocalDateTime в LocalDate
+
                     LocalDate appointmentDate = appointment.getAppointmentDate().toLocalDate();
                     boolean matches = appointmentDate.equals(date);
 
-                    System.out.println("  Appointment ID " + appointment.getId() +
-                            ": appointmentDate = " + appointmentDate +
-                            ", search date = " + date +
-                            ", matches = " + matches);
 
                     return matches;
                 })
                 .collect(Collectors.toList());
 
-        System.out.println("Filtered analyzes by date: " + filteredAnalyzes.size());
 
         return filteredAnalyzes.stream()
                 .map(this::convertToResponse)
                 .toList();
     }
-    // Метод parseDate (можно вынести в утилитный класс)
+
     private LocalDate parseDate(String dateString) {
         try {
             System.out.println("Parsing date string: '" + dateString + "'");
 
             try {
-                // Пробуем стандартный ISO формат (yyyy-MM-dd)
+
                 LocalDate date = LocalDate.parse(dateString);
                 System.out.println("Parsed as ISO (yyyy-MM-dd): " + date);
                 return date;
@@ -126,14 +119,13 @@ public class MedicalAppointmentService {
                 System.out.println("Failed to parse as ISO: " + e1.getMessage());
 
                 try {
-                    // Пробуем русский формат (dd.MM.yyyy)
+
                     LocalDate date = LocalDate.parse(dateString, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-                    System.out.println("Parsed as dd.MM.yyyy: " + date);
+
                     return date;
                 } catch (Exception e2) {
                     System.out.println("Failed to parse as dd.MM.yyyy: " + e2.getMessage());
 
-                    // Пробуем другие форматы
                     String[] formats = {
                             "yyyy/MM/dd", "dd/MM/yyyy", "MM/dd/yyyy",
                             "yyyy.MM.dd", "dd.MM.yyyy", "MM.dd.yyyy"
@@ -145,7 +137,7 @@ public class MedicalAppointmentService {
                             System.out.println("Parsed as " + format + ": " + date);
                             return date;
                         } catch (Exception e3) {
-                            // continue
+
                         }
                     }
 

@@ -29,12 +29,11 @@ public class UserService {
 
         Optional<User> userOpt = userProfileRepository.findById(userId);
         if (userOpt.isEmpty()) {
-            System.out.println("User not found with ID: " + userId);
+
             throw new RuntimeException("User not found with id: " + userId);
         }
 
         User user = userOpt.get();
-        System.out.println("Found user: " + user.getEmail() + " with role: " + user.getRole());
 
         UserProfileResponse response = new UserProfileResponse();
         response.setId(user.getId());
@@ -42,7 +41,7 @@ public class UserService {
         response.setRole(user.getRole());
         response.setCreatedAt(user.getCreatedAt());
 
-        // В зависимости от роли заполняем соответствующие поля
+
         if ("PATIENT".equals(user.getRole())) {
             fillPatientData(response, user);
         } else if ("DOCTOR".equals(user.getRole())) {
@@ -89,9 +88,9 @@ public class UserService {
             response.setSpecialization(doctor.getSpecialization());
             response.setAchievements(doctor.getAchievements());
             response.setIncrementQualification(doctor.getIncrementQualification());
-            System.out.println("Doctor info found: " + doctor.getFirstName() + " " + doctor.getLastName());
+
         } else {
-            System.out.println("Doctor profile not found for user ID: " + user.getId());
+
             throw new RuntimeException("Doctor profile not found for user id: " + user.getId());
         }
     }

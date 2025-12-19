@@ -13,8 +13,7 @@ public class MedicalAppointmentResponse {
     private String doctorInitials;
     private DoctorResponse doctor;
     private ServiceResponse service;
-    
-    // Новые поля для истории
+
     private String status;
     private String category;
     private String title;

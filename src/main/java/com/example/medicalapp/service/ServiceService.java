@@ -60,7 +60,7 @@ public class ServiceService {
     }
 
     public List<ServiceResponse> getAllServicesSortedByPopularity() {
-        // Сортировка по количеству врачей (популярность)
+
         return findAll().stream()
                 .sorted((s1, s2) -> Integer.compare(s2.getDoctors().size(), s1.getDoctors().size()))
                 .map(this::convertToResponse)

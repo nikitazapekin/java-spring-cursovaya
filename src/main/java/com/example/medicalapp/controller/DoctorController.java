@@ -38,18 +38,17 @@ public class DoctorController {
 
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentDoctor(HttpServletRequest request) {
-        System.out.println("=== GET CURRENT DOCTOR ===");
+
         String userEmail = (String) request.getAttribute("userEmail");
-        System.out.println("User email from request: " + userEmail);
+
         
         try {
             if (userEmail == null || userEmail.isEmpty()) {
-                System.out.println("User email is null or empty");
+
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body("{\"message\": \"User not authenticated\"}");
             }
 
-            // Сначала находим пользователя по email
             Optional<User> userOpt = userRepository.findByEmail(userEmail);
             if (userOpt.isEmpty()) {
                 System.out.println("User not found with email: " + userEmail);
@@ -58,32 +57,22 @@ public class DoctorController {
             }
 
             User user = userOpt.get();
-            System.out.println("User found: ID=" + user.getId() + ", Email=" + user.getEmail() + ", Role=" + user.getRole());
 
-            // Теперь находим врача по user_id
             Optional<Doctor> doctorOpt = doctorRepository.findByUserId(user.getId());
-            System.out.println("Doctor found via user_id: " + doctorOpt.isPresent());
+
 
             if (doctorOpt.isEmpty()) {
-                System.out.println("Doctor profile not found for email: " + userEmail);
-                // Проверяем, существует ли пользователь с таким email
-                System.out.println("Checking if user exists with email: " + userEmail);
+
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body("{\"message\": \"Doctor profile not found for email: " + userEmail + "\"}");
             }
 
             Doctor doctor = doctorOpt.get();
-            System.out.println("Doctor found: " + doctor.getFirstName() + " " + doctor.getLastName());
-            System.out.println("Doctor ID: " + doctor.getId());
-            System.out.println("Doctor user_id: " + (doctor.getUser() != null ? doctor.getUser().getId() : "null"));
-            System.out.println("Doctor user email: " + (doctor.getUser() != null ? doctor.getUser().getEmail() : "null"));
+
             
             try {
             DoctorResponse response = mapToDoctorResponse(doctor);
-                System.out.println("Response created successfully");
-                System.out.println("Response ID: " + response.getId());
-                System.out.println("Response firstName: " + response.getFirstName());
-                System.out.println("Response email: " + response.getEmail());
+
 
             return ResponseEntity.ok(response);
             } catch (Exception mappingException) {
@@ -284,7 +273,6 @@ public class DoctorController {
                         .body("{\"message\": \"User not authenticated\"}");
             }
 
-            // Находим пользователя
             Optional<User> userOpt = userRepository.findByEmail(userEmail);
             if (userOpt.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -292,8 +280,7 @@ public class DoctorController {
             }
 
             User user = userOpt.get();
-            
-            // Находим врача
+
             Optional<Doctor> doctorOpt = doctorRepository.findByUserId(user.getId());
             if (doctorOpt.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -302,7 +289,6 @@ public class DoctorController {
 
             Doctor doctor = doctorOpt.get();
 
-            // Обновляем поля
             if (updateRequest.getFirstName() != null) {
                 doctor.setFirstName(updateRequest.getFirstName());
             }
@@ -334,7 +320,7 @@ public class DoctorController {
                 doctor.setCitate(updateRequest.getCitate());
             }
             if (updateRequest.getEmail() != null && !updateRequest.getEmail().equals(user.getEmail())) {
-                // Проверяем, не занят ли email другим пользователем
+
                 if (userRepository.existsByEmail(updateRequest.getEmail())) {
                     return ResponseEntity.status(HttpStatus.CONFLICT)
                             .body("{\"message\": \"Email already exists\"}");
@@ -387,7 +373,7 @@ public class DoctorController {
             }
 
             Doctor doctor = doctorOpt.get();
-            System.out.println("Fetching today appointments for doctor ID: " + doctor.getId());
+
             
             List<MedicalAppointmentResponse> appointments = 
                     medicalAppointmentService.getTodayAppointmentsByDoctorId(doctor.getId());
@@ -405,7 +391,7 @@ public class DoctorController {
     
     @GetMapping("/appointments")
     public ResponseEntity<?> getAllAppointments(HttpServletRequest request) {
-        System.out.println("=== GET ALL DOCTOR APPOINTMENTS ===");
+
         String userEmail = (String) request.getAttribute("userEmail");
         
         try {

@@ -196,24 +196,6 @@ System.out.println(date);
         }
     }
 
-    /*
-    public List<MedicalTestResponse> getMedicalTestsByDate(Long medicalCardId, String dateString) {
-
-        System.out.println("MedicalCardId: " + medicalCardId);
-        System.out.println("Date string: " + dateString);
-
-        LocalDate date = parseDate(dateString);
-
-        List<MedicalTest> medicalTests = medicalTestRepository
-                .findByMedicalCardIdAndTestDate(medicalCardId, date);
-
-        return medicalTests.stream()
-                .map(this::convertToMedicalTestResponse)
-                .collect(Collectors.toList());
-    }
-
-     */
-
     public List<MedicalAppointmentResponse> getMedicalAppointmentsByDate(Long medicalCardId, String dateString) {
         LocalDate date = parseDate(dateString);
 

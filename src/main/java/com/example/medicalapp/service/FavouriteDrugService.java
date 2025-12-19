@@ -105,7 +105,7 @@ public class FavouriteDrugService {
             throw new RuntimeException("Drug not found with id: " + request.getDrugId());
         }
 
-        // Проверяем, не добавлено ли уже это лекарство в избранное
+
         if (favouriteDrugRepository.existsByPatientIdAndDrugId(patientId, request.getDrugId())) {
             throw new RuntimeException("Drug is already in favourites");
         }

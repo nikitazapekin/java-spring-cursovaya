@@ -114,13 +114,11 @@ public class ChildService {
     @Transactional
     public boolean deleteChild(Long id) {
         if (childRepository.existsById(id)) {
-            // Удаляем медицинскую карту ребенка (с каскадным удалением связанных записей)
+
             medicalCardRepository.findByChildId(id).ifPresent(medicalCardRepository::delete);
-            
-            // Удаляем идентификатор ребенка
+
             childIdentifierRepository.findByChildId(id).ifPresent(childIdentifierRepository::delete);
-            
-            // Удаляем самого ребенка
+
             childRepository.deleteById(id);
             return true;
         }
@@ -131,13 +129,12 @@ public class ChildService {
     public boolean deleteChildByParentId(Long id, Long parentId) {
         Optional<Child> childOpt = childRepository.findByIdAndParentId(id, parentId);
         if (childOpt.isPresent()) {
-            // Удаляем медицинскую карту ребенка (с каскадным удалением связанных записей)
+
             medicalCardRepository.findByChildId(id).ifPresent(medicalCardRepository::delete);
             
-            // Удаляем идентификатор ребенка
+
             childIdentifierRepository.findByChildId(id).ifPresent(childIdentifierRepository::delete);
-            
-            // Удаляем самого ребенка
+
             childRepository.deleteById(id);
             return true;
         }
@@ -154,8 +151,7 @@ public class ChildService {
         response.setParentId(child.getParent().getId());
         response.setCreatedAt(child.getCreatedAt());
         response.setUpdatedAt(child.getUpdatedAt());
-        
-        // Добавляем clinic информацию
+
         if (child.getClinic() != null) {
             response.setClinicId(child.getClinic().getId());
         }

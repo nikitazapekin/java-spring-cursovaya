@@ -37,50 +37,7 @@ public class MedicalAppointmentController {
                     .body("{\"message\": \"Error retrieving appointments: " + e.getMessage() + "\"}");
         }
     }
-/*
-    @GetMapping("/medical-card/{medicalCardId}/analyzes")
-    public ResponseEntity<?> getAnalyzesByMedicalCardId(@PathVariable Long medicalCardId) {
-        try {
-            List<MedicalAppointmentResponse> analyzes =
-                    medicalAppointmentService.findAnalyzesByMedicalCardId(medicalCardId);
-            return ResponseEntity.ok(analyzes);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("{\"message\": \"Error retrieving analyzes: " + e.getMessage() + "\"}");
-        }
-    }
 
- */
-
-
-/*
-    @GetMapping("/medical-card/{medicalCardId}/analyzes")
-    public ResponseEntity<?> getAnalyzesByMedicalCardId(
-            @PathVariable Long medicalCardId,
-            @RequestParam(required = false) String date) {
-
-        System.out.println("=== DEBUG getAnalyzesByMedicalCardId ===");
-        System.out.println("MedicalCardId: " + medicalCardId);
-        System.out.println("Date parameter: " + date);
-
-        try {
-            List<MedicalAppointmentResponse> analyzes;
-
-            if (date != null && !date.trim().isEmpty()) {
-
-                analyzes = medicalAppointmentService.findAnalyzesByMedicalCardIdAndDate(medicalCardId, date);
-            } else {
-
-                analyzes = medicalAppointmentService.findAnalyzesByMedicalCardId(medicalCardId);
-            }
-
-            return ResponseEntity.ok(analyzes);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("{\"message\": \"Error retrieving analyzes: " + e.getMessage() + "\"}");
-        }
-    }
-*/
 
 
     @GetMapping("/{medicalCardId}/analyzes/by-date")
@@ -104,7 +61,7 @@ public class MedicalAppointmentController {
         System.out.println("STARRRRRRRRRRRRRRRRRRRRRRRRRRRRTTTTTTTTTTTTTTTTTTTTTTTTTTTTT: " + medicalCardId);
 
         try {
-            System.out.println("Getting all analyzes for medicalCardId: " + medicalCardId);
+
 
             List<MedicalAppointmentResponse> analyzes =
                     medicalAppointmentService.findAnalyzesByMedicalCardId(medicalCardId);
@@ -183,7 +140,6 @@ public class MedicalAppointmentController {
         }
     }
 
-    // История консультаций
     @GetMapping("/consultations/patient/{patientId}")
     public ResponseEntity<?> getConsultationHistory(
             @PathVariable Long patientId,

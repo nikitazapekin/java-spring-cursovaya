@@ -67,12 +67,11 @@ public class DrugService {
             String query = searchQuery.trim();
             drugs = drugRepository.findDrugsWithSearch(query);
         }
-        
-        // Сортировка в Java коде
+
         if (sortBy != null && !sortBy.trim().isEmpty()) {
             drugs = sortDrugs(drugs, sortBy.trim());
         } else {
-            // По умолчанию сортировка по дате создания (новые сначала)
+
             drugs = drugs.stream()
                     .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
                     .collect(Collectors.toList());

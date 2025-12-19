@@ -20,7 +20,7 @@ public class ChatWebSocketController {
 
     @MessageMapping("/chat.sendMessage")
     public void sendMessage(@Payload WebSocketMessage webSocketMessage) {
-        System.out.println("=== Received message via WebSocket ===");
+
         System.out.println("WebSocketMessage: " + webSocketMessage);
 
         try {
@@ -38,7 +38,7 @@ public class ChatWebSocketController {
             System.out.println("Broadcasting message to: " + destination);
             messagingTemplate.convertAndSend(destination, savedMessage);
 
-            System.out.println("=== Message processing completed ===");
+
 
         } catch (Exception e) {
             System.out.println("ERROR sending message: " + e.getMessage());

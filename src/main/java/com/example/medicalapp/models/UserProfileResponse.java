@@ -26,12 +26,10 @@ public class UserProfileResponse {
     private String achievements;
     private String incrementQualification;
 
-    // Специфичные для Patient
     private String registrationDate;
 
     public UserProfileResponse() {}
 
-    // Геттеры и сеттеры
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
