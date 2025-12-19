@@ -153,20 +153,7 @@ public class MedicalCardService {
     }
 
 
-    /*  public List<DiseaseHistoryResponse> getDiseaseHistoriesByDate(Long medicalCardId, String dateString) {
-        LocalDate date = parseDate(dateString);
 
-
-        List<DiseaseHistory> diseaseHistories = diseaseHistoryRepository
-                .findByMedicalCardIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
-                        medicalCardId, date, date);
-
-        return diseaseHistories.stream()
-                .map(this::convertToDiseaseHistoryResponse)
-                .collect(Collectors.toList());
-    }
-
-     */
 
     public List<DiseaseHistoryResponse> getDiseaseHistoriesByDate(Long medicalCardId, String dateString) {
         LocalDate date = parseDate(dateString);
@@ -198,6 +185,10 @@ System.out.println(date);
 
 
     public List<MedicalTestResponse> getMedicalTestsByDate(Long medicalCardId, String dateString) {
+
+        System.out.println("MedicalCardId: " + medicalCardId);
+        System.out.println("Date string: " + dateString);
+
         LocalDate date = parseDate(dateString);
 
         List<MedicalTest> medicalTests = medicalTestRepository

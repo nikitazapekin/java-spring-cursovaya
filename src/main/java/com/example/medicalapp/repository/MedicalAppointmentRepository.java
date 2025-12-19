@@ -18,7 +18,6 @@ public interface MedicalAppointmentRepository extends CrudRepository<MedicalAppo
     List<MedicalAppointment> findByMedicalCardIdAndAppointmentDateBetween(
             Long medicalCardId, LocalDateTime startDate, LocalDateTime endDate);
 
-    // История консультаций по patient_id (через child -> medical_card)
     @Query("SELECT ma FROM MedicalAppointment ma " +
            "JOIN ma.medicalCard mc " +
            "JOIN mc.child c " +
@@ -28,7 +27,6 @@ public interface MedicalAppointmentRepository extends CrudRepository<MedicalAppo
     List<MedicalAppointment> findByPatientIdAndStatus(@Param("patientId") Long patientId, 
                                                        @Param("status") AppointmentStatus status);
 
-    // История по году
     @Query("SELECT ma FROM MedicalAppointment ma " +
            "JOIN ma.medicalCard mc " +
            "JOIN mc.child c " +
@@ -39,23 +37,20 @@ public interface MedicalAppointmentRepository extends CrudRepository<MedicalAppo
     List<MedicalAppointment> findCompletedByPatientIdAndYear(@Param("patientId") Long patientId, 
                                                               @Param("year") Integer year);
 
-    // По конкретному ребенку
     @Query("SELECT ma FROM MedicalAppointment ma " +
            "JOIN ma.medicalCard mc " +
            "WHERE mc.child.id = :childId " +
            "AND ma.status = 'COMPLETED' " +
            "ORDER BY ma.completedAt DESC")
     List<MedicalAppointment> findCompletedByChildId(@Param("childId") Long childId);
-    
-    // Все записи пациента (любой статус)
+
     @Query("SELECT ma FROM MedicalAppointment ma " +
            "JOIN ma.medicalCard mc " +
            "JOIN mc.child c " +
            "WHERE c.parent.id = :patientId " +
            "ORDER BY ma.appointmentDate DESC")
     List<MedicalAppointment> findAllByPatientId(@Param("patientId") Long patientId);
-    
-    // По пациенту и году (любой статус)
+
     @Query("SELECT ma FROM MedicalAppointment ma " +
            "JOIN ma.medicalCard mc " +
            "JOIN mc.child c " +
@@ -64,8 +59,7 @@ public interface MedicalAppointmentRepository extends CrudRepository<MedicalAppo
            "ORDER BY ma.appointmentDate DESC")
     List<MedicalAppointment> findByPatientIdAndYear(@Param("patientId") Long patientId, 
                                                      @Param("year") Integer year);
-    
-    // По пациенту, году и статусу
+
     @Query("SELECT ma FROM MedicalAppointment ma " +
            "JOIN ma.medicalCard mc " +
            "JOIN mc.child c " +
@@ -76,8 +70,7 @@ public interface MedicalAppointmentRepository extends CrudRepository<MedicalAppo
     List<MedicalAppointment> findByPatientIdYearAndStatus(@Param("patientId") Long patientId, 
                                                            @Param("year") Integer year,
                                                            @Param("status") AppointmentStatus status);
-    
-    // Записи врача на сегодня
+
     @Query(value = "SELECT * FROM medical_appointments ma " +
            "WHERE ma.doctor_id = :doctorId " +
            "AND DATE(ma.appointment_date) = CURRENT_DATE " +
@@ -85,8 +78,7 @@ public interface MedicalAppointmentRepository extends CrudRepository<MedicalAppo
            "ORDER BY ma.appointment_date ASC", 
            nativeQuery = true)
     List<MedicalAppointment> findTodayAppointmentsByDoctorId(@Param("doctorId") Long doctorId);
-    
-    // Все записи врача с фильтрами
+
     @Query("SELECT ma FROM MedicalAppointment ma " +
            "WHERE ma.doctor.id = :doctorId " +
            "ORDER BY ma.appointmentDate DESC")

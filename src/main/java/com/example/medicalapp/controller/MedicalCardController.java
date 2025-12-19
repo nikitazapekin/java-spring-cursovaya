@@ -143,6 +143,10 @@ public class MedicalCardController {
     public ResponseEntity<?> getMedicalTestsByDate(
             @PathVariable Long medicalCardId,
             @RequestParam String date) {
+
+        System.out.println("DATTATA");
+
+        System.out.println(date);
         try {
             List<MedicalTestResponse> medicalTests =
                     medicalCardService.getMedicalTestsByDate(medicalCardId, date);
