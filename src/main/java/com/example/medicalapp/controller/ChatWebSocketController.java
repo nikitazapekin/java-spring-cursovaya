@@ -35,7 +35,7 @@ public class ChatWebSocketController {
 
 
             String destination = "/topic/chat/" + webSocketMessage.getChatId();
-            System.out.println("Broadcasting message to: " + destination);
+
             messagingTemplate.convertAndSend(destination, savedMessage);
 
 

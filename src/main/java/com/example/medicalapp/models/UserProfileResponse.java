@@ -11,12 +11,11 @@ public class UserProfileResponse {
     private String avatar;
     private LocalDateTime createdAt;
 
-    // Общие поля
     private String phoneNumber;
     private String region;
     private String citate;
 
-    // Специфичные для Doctor
+
     private String middleName;
     private Double rate;
     private String status;

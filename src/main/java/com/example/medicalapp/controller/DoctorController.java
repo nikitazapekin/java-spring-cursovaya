@@ -345,7 +345,7 @@ public class DoctorController {
     
     @GetMapping("/appointments/today")
     public ResponseEntity<?> getTodayAppointments(HttpServletRequest request) {
-        System.out.println("=== GET TODAY APPOINTMENTS ===");
+
         String userEmail = (String) request.getAttribute("userEmail");
         System.out.println("User email from request: " + userEmail);
         

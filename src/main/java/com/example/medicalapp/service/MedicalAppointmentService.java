@@ -222,8 +222,7 @@ public class MedicalAppointmentService {
         response.setDuration(appointment.getDuration());
         response.setPrice(appointment.getPrice());
         response.setCompletedAt(appointment.getCompletedAt());
-        
-        // Если patientName не задано, берем из Child
+
         String patientName = appointment.getPatientName();
         if ((patientName == null || patientName.isEmpty()) && 
             appointment.getMedicalCard() != null && 
@@ -309,7 +308,6 @@ public class MedicalAppointmentService {
         };
     }
 
-    // Все записи пациента (с расширенными фильтрами)
     public List<MedicalAppointmentResponse> getAllAppointmentsByPatient(
             Long patientId, 
             Integer year, 
@@ -318,8 +316,7 @@ public class MedicalAppointmentService {
             String search) {
         
         List<MedicalAppointment> appointments;
-        
-        // Получаем записи с фильтрами
+
         if (year != null && status != null && !status.isEmpty()) {
             appointments = medicalAppointmentRepository.findByPatientIdYearAndStatus(
                 patientId, year, AppointmentStatus.valueOf(status));
@@ -332,7 +329,7 @@ public class MedicalAppointmentService {
             appointments = medicalAppointmentRepository.findAllByPatientId(patientId);
         }
         
-        // Поиск
+
         if (search != null && !search.trim().isEmpty()) {
             String searchLower = search.toLowerCase();
             appointments = appointments.stream()
@@ -345,7 +342,7 @@ public class MedicalAppointmentService {
                     .toList();
         }
         
-        // Сортировка
+
         appointments = sortAppointments(appointments, sortBy);
         
         return appointments.stream()
@@ -392,7 +389,7 @@ public class MedicalAppointmentService {
         };
     }
     
-    // Отмена записи
+
     public MedicalAppointment cancelAppointment(Long id) throws Exception {
         MedicalAppointment appointment = medicalAppointmentRepository.findById(id)
                 .orElseThrow(() -> new Exception("Appointment not found"));
@@ -402,7 +399,7 @@ public class MedicalAppointmentService {
         return medicalAppointmentRepository.save(appointment);
     }
     
-    // Обновление даты записи
+
     public MedicalAppointment rescheduleAppointment(Long id, LocalDateTime newDate, String newTime) throws Exception {
         MedicalAppointment appointment = medicalAppointmentRepository.findById(id)
                 .orElseThrow(() -> new Exception("Appointment not found"));
@@ -415,14 +412,14 @@ public class MedicalAppointmentService {
         return medicalAppointmentRepository.save(appointment);
     }
     
-    // Записи врача на сегодня
+
     public List<MedicalAppointmentResponse> getTodayAppointmentsByDoctorId(Long doctorId) {
         return medicalAppointmentRepository.findTodayAppointmentsByDoctorId(doctorId).stream()
                 .map(this::convertToResponse)
                 .toList();
     }
     
-    // Все записи врача
+
     public List<MedicalAppointmentResponse> getAllAppointmentsByDoctorId(Long doctorId) {
         return medicalAppointmentRepository.findAllByDoctorId(doctorId).stream()
                 .map(this::convertToResponse)

@@ -42,7 +42,6 @@ public class MedicalAppointment {
     @Column(name = "appointment_time")
     private String appointmentTime;
 
-    // Новые поля для истории консультаций
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private AppointmentStatus status = AppointmentStatus.SCHEDULED;

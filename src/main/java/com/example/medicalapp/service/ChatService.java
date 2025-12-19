@@ -34,7 +34,7 @@ public class ChatService {
 
     @Transactional
     public Long getOrCreateChat(Long patientId, Long doctorId, Long authorId) {
-        //PatientId: 19, DoctorId: 20, AuthorId: 20
+
         System.out.println("PatientId: " + patientId + ", DoctorId: " + doctorId + ", AuthorId: " + authorId);
 
         Optional<Chat> existingChat = chatRepository.findByPatientAndDoctorWithParticipants(patientId, doctorId);
