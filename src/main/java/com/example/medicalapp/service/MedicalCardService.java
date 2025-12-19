@@ -53,6 +53,19 @@ public class MedicalCardService {
         return convertToResponse(savedMedicalCard);
     }
 
+
+    public List<MedicalTestResponse> getMedicalTestsByDate(Long medicalCardId, String dateString) {
+        LocalDate date = parseDate(dateString);
+
+        List<MedicalTest> medicalTests = medicalTestRepository
+                .findByMedicalCardIdAndTestDate(medicalCardId, date);
+
+        return medicalTests.stream()
+                .map(this::convertToMedicalTestResponse)
+                .collect(Collectors.toList());
+    }
+
+
     public Optional<MedicalCardResponse> getMedicalCardByChildId(Long childId) {
         return medicalCardRepository.findByChildId(childId)
                 .map(this::convertToResponse);
@@ -183,7 +196,7 @@ System.out.println(date);
         }
     }
 
-
+    /*
     public List<MedicalTestResponse> getMedicalTestsByDate(Long medicalCardId, String dateString) {
 
         System.out.println("MedicalCardId: " + medicalCardId);
@@ -198,6 +211,8 @@ System.out.println(date);
                 .map(this::convertToMedicalTestResponse)
                 .collect(Collectors.toList());
     }
+
+     */
 
     public List<MedicalAppointmentResponse> getMedicalAppointmentsByDate(Long medicalCardId, String dateString) {
         LocalDate date = parseDate(dateString);

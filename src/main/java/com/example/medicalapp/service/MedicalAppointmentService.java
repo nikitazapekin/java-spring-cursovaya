@@ -9,10 +9,12 @@ import com.example.medicalapp.repository.MedicalCardRepository;
 import com.example.medicalapp.repository.ServiceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @org.springframework.stereotype.Service
 public class MedicalAppointmentService {
@@ -42,6 +44,122 @@ public class MedicalAppointmentService {
     public Optional<MedicalAppointment> findById(Long id) {
         return medicalAppointmentRepository.findById(id);
     }
+
+
+
+    public List<MedicalAppointmentResponse> findAnalyzesByMedicalCardId(Long medicalCardId) {
+        System.out.println("=== Getting all analyzes for medicalCardId: " + medicalCardId + " ===");
+
+        List<MedicalAppointment> analyzes = medicalAppointmentRepository
+                .findByMedicalCardIdAndAppointmentType(medicalCardId, "Анализы");
+
+        System.out.println("Total analyzes found in repository: " + analyzes.size());
+
+        for (MedicalAppointment appointment : analyzes) {
+            System.out.println("Analyze ID: " + appointment.getId() +
+                    ", Name: " + appointment.getAppointmentName() +
+                    ", Date: " + appointment.getAppointmentDate() +
+                    ", Type: " + appointment.getAppointmentType());
+        }
+
+        // Преобразуем в response
+        return analyzes.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
+
+
+
+    public List<MedicalAppointmentResponse> findAnalyzesByMedicalCardIdAndDate(Long medicalCardId, String dateString) {
+        System.out.println("=== DEBUG findAnalyzesByMedicalCardIdAndDate ===");
+        System.out.println("MedicalCardId: " + medicalCardId);
+        System.out.println("Date string: '" + dateString + "'");
+
+        LocalDate date = parseDate(dateString);
+        System.out.println("Parsed date: " + date);
+
+        // Получаем все анализы для этой медицинской карты
+        List<MedicalAppointment> allAnalyzes = medicalAppointmentRepository
+                .findByMedicalCardIdAndAppointmentType(medicalCardId, "Анализы");
+
+        System.out.println("Total analyzes found for medical card: " + allAnalyzes.size());
+
+        // Фильтруем по дате appointmentDate
+        List<MedicalAppointment> filteredAnalyzes = allAnalyzes.stream()
+                .filter(appointment -> {
+                    if (appointment.getAppointmentDate() == null) {
+                        System.out.println("  Appointment ID " + appointment.getId() + ": null appointment date");
+                        return false;
+                    }
+
+                    // Преобразуем LocalDateTime в LocalDate
+                    LocalDate appointmentDate = appointment.getAppointmentDate().toLocalDate();
+                    boolean matches = appointmentDate.equals(date);
+
+                    System.out.println("  Appointment ID " + appointment.getId() +
+                            ": appointmentDate = " + appointmentDate +
+                            ", search date = " + date +
+                            ", matches = " + matches);
+
+                    return matches;
+                })
+                .collect(Collectors.toList());
+
+        System.out.println("Filtered analyzes by date: " + filteredAnalyzes.size());
+
+        return filteredAnalyzes.stream()
+                .map(this::convertToResponse)
+                .toList();
+    }
+    // Метод parseDate (можно вынести в утилитный класс)
+    private LocalDate parseDate(String dateString) {
+        try {
+            System.out.println("Parsing date string: '" + dateString + "'");
+
+            try {
+                // Пробуем стандартный ISO формат (yyyy-MM-dd)
+                LocalDate date = LocalDate.parse(dateString);
+                System.out.println("Parsed as ISO (yyyy-MM-dd): " + date);
+                return date;
+            } catch (Exception e1) {
+                System.out.println("Failed to parse as ISO: " + e1.getMessage());
+
+                try {
+                    // Пробуем русский формат (dd.MM.yyyy)
+                    LocalDate date = LocalDate.parse(dateString, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+                    System.out.println("Parsed as dd.MM.yyyy: " + date);
+                    return date;
+                } catch (Exception e2) {
+                    System.out.println("Failed to parse as dd.MM.yyyy: " + e2.getMessage());
+
+                    // Пробуем другие форматы
+                    String[] formats = {
+                            "yyyy/MM/dd", "dd/MM/yyyy", "MM/dd/yyyy",
+                            "yyyy.MM.dd", "dd.MM.yyyy", "MM.dd.yyyy"
+                    };
+
+                    for (String format : formats) {
+                        try {
+                            LocalDate date = LocalDate.parse(dateString, DateTimeFormatter.ofPattern(format));
+                            System.out.println("Parsed as " + format + ": " + date);
+                            return date;
+                        } catch (Exception e3) {
+                            // continue
+                        }
+                    }
+
+                    throw new RuntimeException("Could not parse date: " + dateString);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("ERROR parsing date: " + dateString + " - " + e.getMessage());
+            throw new RuntimeException("Invalid date format. Use yyyy-MM-dd or dd.MM.yyyy. Received: " + dateString);
+        }
+    }
+
+
+
 
     public MedicalAppointment createAppointment(MedicalAppointmentRequest request) throws Exception {
         MedicalCard medicalCard = medicalCardRepository.findById(request.getMedicalCardId())
@@ -142,14 +260,16 @@ public class MedicalAppointmentService {
                 .map(this::convertToResponse)
                 .toList();
     }
-
+/*
     public List<MedicalAppointmentResponse> findAnalyzesByMedicalCardId(Long medicalCardId) {
         return medicalAppointmentRepository.findByMedicalCardIdAndAppointmentType(medicalCardId, "Анализы").stream()
                 .map(this::convertToResponse)
                 .toList();
     }
 
-    // История консультаций
+
+ */
+
     public List<MedicalAppointmentResponse> getCompletedConsultationsByPatientId(Long patientId, String sortBy) {
         var appointments = medicalAppointmentRepository.findByPatientIdAndStatus(
                 patientId, 
