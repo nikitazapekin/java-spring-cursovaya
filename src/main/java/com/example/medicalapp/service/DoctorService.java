@@ -121,4 +121,12 @@ public class DoctorService {
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }
+
+    public Long getDoctorIdByUserId(Long userId) {
+        return doctorRepository.findByUserId(userId)
+                .map(Doctor::getId)
+                .orElseThrow(() -> new RuntimeException("Doctor not found for user id: " + userId));
+    }
+
+
 }

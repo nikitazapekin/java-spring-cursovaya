@@ -4,6 +4,7 @@ import com.example.medicalapp.entity.Chat;
 import com.example.medicalapp.models.ChatDTO;
 import com.example.medicalapp.models.MessageDTO;
 import com.example.medicalapp.service.ChatService;
+import com.example.medicalapp.service.DoctorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,15 +19,52 @@ public class ChatController {
     @Autowired
     private ChatService chatService;
 
+    @Autowired
+    private DoctorService doctorService;
+
+
     @PostMapping("/start")
     public ResponseEntity<Long> startChat(
             @RequestParam Long patientId,
             @RequestParam Long doctorId,
-            @RequestParam Long authorId) {
+            @RequestParam Long authorId ,
+            @RequestParam Boolean isDoctor
+            ) {
+
+        System.out.println("GOOOOOOOOOOOOD");
+        System.out.println("то доктор?");
+        System.out.println(isDoctor );
+        System.out.println("пациент");
+        System.out.println(patientId );
+        Long id = isDoctor  ?  doctorService.getDoctorIdByUserId(doctorId) : doctorId;
+        System.out.println("доктор");
+      //  System.out.println(doctorId );
+        System.out.println(id );
+        System.out.println("автор");
+        System.out.println(authorId );
+
         try {
-            Long chatId = chatService.getOrCreateChat(patientId, doctorId, authorId);
+
+            //PatientId: 19, DoctorId: 20, AuthorId: 20
+        //    Long chatId = chatService.getOrCreateChat(patientId, doctorId, authorId);
+            /*
+Long doc = 13L;
+Long pat = 19L;
+            Long chatId = chatService.getOrCreateChat(pat, doc, authorId);
+*/
+         /*   Long id =  doctorService.getDoctorIdByUserId(doctorId);
+            Long chatId = chatService.getOrCreateChat(patientId, id, authorId); */
+            //PatientId: 26, DoctorId: 25, AuthorId: 25
+            Long chatId = chatService.getOrCreateChat(patientId, id, authorId);
+            System.out.println("GOOOOOOOOOOOOD");
+            System.out.println(patientId );
+            System.out.println(doctorId );
+            System.out.println(authorId );
+
             return ResponseEntity.ok(chatId);
         } catch (Exception e) {
+
+            System.out.println("Errrrrrrrrrrrrrrrrrrrrrrrrrrr");
             return ResponseEntity.badRequest().build();
         }
     }
@@ -51,13 +89,25 @@ public class ChatController {
         }
     }
 
+
+
     @GetMapping("/doctor/{doctorId}")
     public ResponseEntity<List<ChatDTO>> getDoctorChats(@PathVariable Long doctorId) {
         try {
-            List<ChatDTO> chats = chatService.getDoctorChats(doctorId);
+           Long id =  doctorService.getDoctorIdByUserId(doctorId);
+           System.out.println("SELECTED ID .....................");
+
+            System.out.println(id);
+            System.out.println(doctorId);
+            List<ChatDTO> chats = chatService.getDoctorChats(id);
+
+
             return ResponseEntity.ok(chats);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
     }
 }
+
+
+//getDoctorIdByUserId
