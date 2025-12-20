@@ -2,6 +2,7 @@ package com.example.medicalapp.repository;
 
 
 import com.example.medicalapp.entity.Doctor;
+import com.example.medicalapp.entity.User;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -14,6 +15,9 @@ import java.util.Optional;
 public interface DoctorRepository extends CrudRepository<Doctor, Long> {
     Optional<Doctor> findByUserEmail(String email);
     boolean existsByUserEmail(String email);
+
+
+    Optional<Doctor> findByUser(User user);
 
 
     List<Doctor> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(String firstName, String lastName);

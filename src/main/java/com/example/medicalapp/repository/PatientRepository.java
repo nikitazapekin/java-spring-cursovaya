@@ -1,6 +1,7 @@
 package com.example.medicalapp.repository;
 
 import com.example.medicalapp.entity.Patient;
+import com.example.medicalapp.entity.User;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -20,5 +21,7 @@ public interface PatientRepository extends CrudRepository<Patient, Long> {
 
     Optional<Patient> findByUserId(Long userId);
 
+
+    Optional<Patient> findByUser(User user);
 
 }
