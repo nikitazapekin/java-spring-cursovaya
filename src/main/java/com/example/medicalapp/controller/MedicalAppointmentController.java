@@ -223,5 +223,18 @@ public class MedicalAppointmentController {
                     .body("{\"message\": \"Error rescheduling appointment: " + e.getMessage() + "\"}");
         }
     }
+
+    @GetMapping("/booked-slots")
+    public ResponseEntity<?> getBookedTimeSlots(
+            @RequestParam Long doctorId,
+            @RequestParam String date) {
+        try {
+            List<String> bookedSlots = medicalAppointmentService.getBookedTimeSlots(doctorId, date);
+            return ResponseEntity.ok(bookedSlots);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"message\": \"Error retrieving booked time slots: " + e.getMessage() + "\"}");
+        }
+    }
 }
 

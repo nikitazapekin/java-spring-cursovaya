@@ -425,5 +425,15 @@ public class MedicalAppointmentService {
                 .map(this::convertToResponse)
                 .toList();
     }
+
+    public List<String> getBookedTimeSlots(Long doctorId, String dateString) {
+        try {
+            LocalDateTime date = LocalDateTime.parse(dateString, DateTimeFormatter.ISO_DATE_TIME);
+            return medicalAppointmentRepository.findBookedTimeSlotsByDoctorAndDate(doctorId, date);
+        } catch (Exception e) {
+            System.err.println("Error parsing date for booked slots: " + dateString);
+            return List.of();
+        }
+    }
 }
 

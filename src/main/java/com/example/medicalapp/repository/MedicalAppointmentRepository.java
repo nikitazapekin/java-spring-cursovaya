@@ -83,4 +83,11 @@ public interface MedicalAppointmentRepository extends CrudRepository<MedicalAppo
            "WHERE ma.doctor.id = :doctorId " +
            "ORDER BY ma.appointmentDate DESC")
     List<MedicalAppointment> findAllByDoctorId(@Param("doctorId") Long doctorId);
+
+    @Query("SELECT ma.appointmentTime FROM MedicalAppointment ma " +
+           "WHERE ma.doctor.id = :doctorId " +
+           "AND DATE(ma.appointmentDate) = DATE(:date) " +
+           "AND ma.status IN ('SCHEDULED', 'PENDING')")
+    List<String> findBookedTimeSlotsByDoctorAndDate(@Param("doctorId") Long doctorId, 
+                                                     @Param("date") LocalDateTime date);
 }
